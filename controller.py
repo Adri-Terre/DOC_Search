@@ -86,7 +86,7 @@ def control_buscardocumentacion(ruta="."):
             else:
                 vista.datos_carpetas.insert(INSERT, carpeta_sitio + " ")
                 vista.datos_carpetas.insert(INSERT, "No Files\n")
-        i = 99.99
+        i = 90
 
         vista.progressbar.step(i)
     else:
