@@ -27,6 +27,21 @@ def connection_db():
             "CREATE TABLE doc_airport (ID INT AUTO_INCREMENT PRIMARY KEY, AIRPORT VARCHAR(255),SYSTEM VARCHAR(255),FILES VARCHAR(255), YEAR VARCHAR(255), FIR VARCHAR(255)"
         )
         mod_var.mycursor.execute(
+            "CREATE TABLE fir_eze (ID INT AUTO_INCREMENT PRIMARY KEY, AIRPORT VARCHAR(255),SYSTEM VARCHAR(255),FILES VARCHAR(255), YEAR VARCHAR(255), FIR VARCHAR(255)"
+        )
+        mod_var.mycursor.execute(
+            "CREATE TABLE fir_doz (ID INT AUTO_INCREMENT PRIMARY KEY, AIRPORT VARCHAR(255),SYSTEM VARCHAR(255),FILES VARCHAR(255), YEAR VARCHAR(255), FIR VARCHAR(255)"
+        )
+        mod_var.mycursor.execute(
+            "CREATE TABLE fir_sis (ID INT AUTO_INCREMENT PRIMARY KEY, AIRPORT VARCHAR(255),SYSTEM VARCHAR(255),FILES VARCHAR(255), YEAR VARCHAR(255), FIR VARCHAR(255)"
+        )
+        mod_var.mycursor.execute(
+            "CREATE TABLE fir_cba (ID INT AUTO_INCREMENT PRIMARY KEY, AIRPORT VARCHAR(255),SYSTEM VARCHAR(255),FILES VARCHAR(255), YEAR VARCHAR(255), FIR VARCHAR(255)"
+        )
+        mod_var.mycursor.execute(
+            "CREATE TABLE fir_crv (ID INT AUTO_INCREMENT PRIMARY KEY, AIRPORT VARCHAR(255),SYSTEM VARCHAR(255),FILES VARCHAR(255), YEAR VARCHAR(255), FIR VARCHAR(255)"
+        )
+        mod_var.mycursor.execute(
             "CREATE TABLE aep_table (ID INT AUTO_INCREMENT PRIMARY KEY, AIRPORT VARCHAR(255),FIR VARCHAR(255)"
         )
         db_conectado = True
@@ -69,9 +84,54 @@ def connection_db():
                 AIRPORT = CharField()
                 FIR = CharField()
 
+            class fir_cba(BaseModel):
+
+                AIRPORT = CharField()
+                SYSTEM = CharField()
+                FILES = CharField()
+                YEAR = CharField()
+                FIR = CharField()
+
+            class fir_eze(BaseModel):
+
+                AIRPORT = CharField()
+                SYSTEM = CharField()
+                FILES = CharField()
+                YEAR = CharField()
+                FIR = CharField()
+
+            class fir_sis(BaseModel):
+
+                AIRPORT = CharField()
+                SYSTEM = CharField()
+                FILES = CharField()
+                YEAR = CharField()
+                FIR = CharField()
+
+            class fir_crv(BaseModel):
+
+                AIRPORT = CharField()
+                SYSTEM = CharField()
+                FILES = CharField()
+                YEAR = CharField()
+                FIR = CharField()
+
+            class fir_doz(BaseModel):
+
+                AIRPORT = CharField()
+                SYSTEM = CharField()
+                FILES = CharField()
+                YEAR = CharField()
+                FIR = CharField()
+
             mibase.connect()
             mibase.create_tables([doc_airport])
             mibase.create_tables([aep_table])
+            mibase.create_tables([fir_cba])
+            mibase.create_tables([fir_sis])
+            mibase.create_tables([fir_crv])
+            mibase.create_tables([fir_eze])
+            mibase.create_tables([fir_doz])
             db_conectado = True
 
         if err.errno == 1007:

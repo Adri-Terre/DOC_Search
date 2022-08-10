@@ -25,6 +25,10 @@ def insertar_documentacion():
     controller.control_buscardocumentacion()
 
 
+def buscartodos():
+    controller.control_buscardocumentacion()
+
+
 def limpiar():
     controller.control_limpiar()
 
@@ -93,9 +97,9 @@ Button(master, text="Limpiar pantalla", width=15, command=limpiar, anchor=CENTER
     x=420, y=250
 )
 # -----------------------------------------------------------------------------------
-# Button(master, text="Buscar todos", width=20, command=buscartodos, anchor=CENTER).place(
-#    x=5, y=100
-# )
+Button(master, text="Buscar todos", width=20, command=buscartodos, anchor=CENTER).place(
+    x=5, y=100
+)
 
 w = Label(master, text="EXTRACTO CARPETAS")
 w.place(x=420, y=10)

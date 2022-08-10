@@ -356,8 +356,13 @@ class Registros:  # (Patr_Obs):
         mod_var.encontrado = 0
         mod_var.no_encontrado = 0
         mod_var.total_encontrados = 0
-        sql = "SELECT *from contactos"
+        sql = "SELECT *from doc_airport"
         resultado = operacion_db_buscar(sql)
+
+        for informacion in resultado:
+            if informacion[5]== textoBuscar:
+                print ("yeah")
+            
 
         for contacto in resultado:
             for x in contacto:

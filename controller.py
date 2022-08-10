@@ -232,7 +232,9 @@ def control_limpiar():
     vista.datos_carpetas.delete(1.0, END)
     vista.anio_input.delete(0, END)
 
-    # def control_buscardocumentacion():
+
+def control_buscardocumentacion():
+    import modulo as mod
 
     """esta funcion busca un todo lo existente en las carpetas a analizar, y muestra en la pantalla cantidades y labels"""
 
@@ -247,7 +249,7 @@ def control_limpiar():
     # mod_var.buscartodos_boton = False
     # texto = contacto_a_buscar
     # texto = texto.upper()
-    # contacto = modulo.agenda.buscar(texto)
+    contacto = mod.registro.buscar("EZE")
 
     # if mod_var.no_encontrado == 0:
     #    vista.datos_contacto.insert(INSERT, "---*---*---<>---*---*---\n")
