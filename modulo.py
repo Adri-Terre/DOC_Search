@@ -346,11 +346,12 @@ class Registros:  # (Patr_Obs):
             mod_var.var_eliminar = False
     """
 
-    def buscar(self, textoBuscar):
+    def separar_por_sitio(self, textoBuscar):
 
         """ Esta funcion se utiliza tanto para buscar todos los contactos en la agenda, como así también uno específico """
 
         from module_base_de_datos import operacion_db_buscar
+        from module_base_de_datos import operacion_db
         import module_variable as mod_var
 
         mod_var.encontrado = 0
@@ -359,11 +360,75 @@ class Registros:  # (Patr_Obs):
         sql = "SELECT *from doc_airport"
         resultado = operacion_db_buscar(sql)
 
-        for informacion in resultado:
-            if informacion[5]== textoBuscar:
-                print ("yeah")
-            
+        # n = 5
 
+        for informacion in resultado:
+
+            if informacion[5] == "EZE":
+
+                sql = "INSERT INTO fir_eze(AIRPORT,SYSTEM,FILES,YEAR, FIR)VALUES(%s,%s,%s,%s,%s)"
+                val = [
+                    informacion[1],
+                    informacion[2],
+                    informacion[3],
+                    informacion[4],
+                    informacion[5],
+                ]
+                operacion_db(sql, val)
+                # showinfo("OK", "Operación exitosa")
+                # doc_input = Doc_input(airport, system, files, year, fir)
+                # self.doc_search.append(doc_input)
+                # n += 5
+            elif informacion[5] == "SIS":
+                sql = "INSERT INTO fir_sis(AIRPORT,SYSTEM,FILES,YEAR, FIR)VALUES(%s,%s,%s,%s,%s)"
+                val = [
+                    informacion[1],
+                    informacion[2],
+                    informacion[3],
+                    informacion[4],
+                    informacion[5],
+                ]
+                operacion_db(sql, val)
+                # n += 5
+
+            elif informacion[5] == "CBA":
+                sql = "INSERT INTO fir_cba(AIRPORT,SYSTEM,FILES,YEAR, FIR)VALUES(%s,%s,%s,%s,%s)"
+                val = [
+                    informacion[1],
+                    informacion[2],
+                    informacion[3],
+                    informacion[4],
+                    informacion[5],
+                ]
+                operacion_db(sql, val)
+                # n += 5
+
+            elif informacion[5] == "CRV":
+                sql = "INSERT INTO fir_crv(AIRPORT,SYSTEM,FILES,YEAR, FIR)VALUES(%s,%s,%s,%s,%s)"
+                val = [
+                    informacion[1],
+                    informacion[2],
+                    informacion[3],
+                    informacion[4],
+                    informacion[5],
+                ]
+                operacion_db(sql, val)
+                # n += 5
+
+            elif informacion[n] == "DOZ":
+                sql = "INSERT INTO fir_doz(AIRPORT,SYSTEM,FILES,YEAR, FIR)VALUES(%s,%s,%s,%s,%s)"
+                val = [
+                    informacion[1],
+                    informacion[2],
+                    informacion[3],
+                    informacion[4],
+                    informacion[5],
+                ]
+                operacion_db(sql, val)
+                # n += 5
+        # n = 5
+
+        """
         for contacto in resultado:
             for x in contacto:
 
@@ -386,6 +451,7 @@ class Registros:  # (Patr_Obs):
 
         buscartodos_boton = False
         return mod_var.contacto_encontrado
+        """
 
     def grabar(self):
 
