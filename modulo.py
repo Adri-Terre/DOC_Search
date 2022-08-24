@@ -10,13 +10,7 @@ from tkinter.messagebox import *
 # import base64
 from fpdf import FPDF
 
-# import logging
-# import smtplib, ssl
-# from email.mime.multipart import MIMEMultipart
-# from email.mime.text import MIMEText
 import os
-
-# import json
 
 
 class Doc_input:
@@ -29,73 +23,6 @@ class Doc_input:
         self.files = files
         self.year = year
         self.fir = fir
-
-
-class Aep_input:
-    nuevoId = itertools.count()
-
-    def __init__(self, airport, fir):
-        self.codigo = next(self.nuevoId)
-        self.airport = airport
-        self.fir = fir
-
-
-"""
-class Patr_Obs:
-
-    observadores = []
-
-    def agregar(self, obj):
-        self.observadores.append(obj)
-
-    def quitar(self, obj):
-        pass
-
-    def notificar(self):
-        for observador in self.observadores:
-            observador.update()
-
-
-class Observador:
-    def update(self):
-        raise NotImplementedError("Delegación de actualización")
-
-
-class ConcreteObserverA(Observador):
-    def __init__(self, obj):
-        self.observador_a = obj
-        self.observador_a.agregar(self)
-
-    def update(self):
-
-        try:
-            logging.basicConfig(
-                filename="Log.log",
-                filemode="a",
-                format="%(asctime)s : %(levelname)s : %(message)s",
-                datefmt="%d/%m/%y %H:%M:%S",
-                level=logging.INFO,
-            )
-
-            logging.info(
-                "Se ha Dado de Alta el registro: Nombre: "
-                + str(self.observador_a.contactos[-1].nombre)
-                + " Apellido: "
-                + str(self.observador_a.contactos[-1].apellido)
-                + " Empresa: "
-                + str(self.observador_a.contactos[-1].empresa)
-                + " Email: "
-                + str(self.observador_a.contactos[-1].email)
-                + " Telefono: "
-                + str(self.observador_a.contactos[-1].movil)
-            )
-            print(
-                "@Patron observador: Se ha dado de alta un registro en archivo Log.log"
-            )
-        except:
-            print("Error inesperado")
-            logging.fatal("Error inesperado")
-"""
 
 
 class Registros:  # (Patr_Obs):
@@ -122,9 +49,10 @@ class Registros:  # (Patr_Obs):
             n += 1
             # self.notificar()
 
+    """
     def cargar_sitios(self, airport, fir):
 
-        """ esta funcion carga un contacto en la base de datos """
+        #esta funcion carga un contacto en la base de datos
         import module_variable as mod_var
 
         from module_base_de_datos import operacion_db
@@ -143,6 +71,7 @@ class Registros:  # (Patr_Obs):
             n += 1
             # self.notificar()
         mod_var.db_table_aep = True
+    """
 
     def cargar_csv(self, id, airport, system, files, year, fir):
 
@@ -151,202 +80,7 @@ class Registros:  # (Patr_Obs):
         registers = Doc_input(airport, system, files, year, fir)
         self.doc_search.append(registers)
 
-    """
-    def funcion_decorar_actualizar(funcion_m):
-        def funcion_interna_m(
-            self,
-            nombre,
-            apellido,
-            empresa,
-            email,
-            movil,
-            codigo,
-            nombre_aux,
-            apellido_aux,
-            empresa_aux,
-            email_aux,
-            movil_aux,
-            image_64_encode_aux,
-        ):
-
-            funcion_m(
-                self,
-                nombre,
-                apellido,
-                empresa,
-                email,
-                movil,
-                codigo,
-                nombre_aux,
-                apellido_aux,
-                empresa_aux,
-                email_aux,
-                movil_aux,
-                image_64_encode_aux,
-            )
-            print("@Decorador: Actualización de registro en archivo Log.log")
-
-            try:
-                logging.basicConfig(
-                    filename="Log.log",
-                    filemode="a",
-                    format="%(asctime)s : %(levelname)s : %(message)s",
-                    datefmt="%d/%m/%y %H:%M:%S",
-                    level=logging.INFO,
-                )
-
-                logging.info(
-                    "Se realizan los siguientes cambios: Nombre: "
-                    + str(nombre)
-                    + " Apellido: "
-                    + str(apellido)
-                    + " Empresa: "
-                    + str(empresa)
-                    + " Email: "
-                    + str(email)
-                    + " Telefono: "
-                    + str(movil)
-                )
-
-            except:
-                print("Error inesperado")
-                logging.fatal("Error inesperado")
-
-        return funcion_interna_m
-
-    def funcion_decorar_eliminar(funcion_e):
-        def funcion_interna_e(
-            self, nombre, apellido, empresa, email, movil, codigo,
-        ):
-            funcion_e(self, nombre, apellido, empresa, email, movil, codigo)
-            import module_variable as mod_var
-
-            if mod_var.var_eliminar == True:
-
-                print("@Decorador: Se ha eliminado un registro")
-
-                if askyesno(
-                    "Consulta", "¿Desea enviar el registro eliminado por email?"
-                ):
-
-                    mail_from = input("\ningrese su correo electronico\n")
-                    username = mail_from
-                    password = input("\ningrese la contraseña\n")
-                    mail_to = input(
-                        "\ningrese el correo electronico del destinatario\n"
-                    )
-                    mail_subject = "Python"
-                    mail_body = (
-                        "Eliminación de registro: Nombre: "
-                        + str(nombre)
-                        + " Apellido: "
-                        + str(apellido)
-                        + " Empresa: "
-                        + str(empresa)
-                        + " Email: "
-                        + str(email)
-                        + " Telefono: "
-                        + str(movil)
-                    )
-
-                    try:
-                        mimemsg = MIMEMultipart()
-                        mimemsg["From"] = mail_from
-                        mimemsg["To"] = mail_to
-                        mimemsg["Subject"] = mail_subject
-                        mimemsg.attach(MIMEText(mail_body, "plain"))
-                        connection = smtplib.SMTP(host="smtp.gmail.com", port=587)
-                        connection.starttls()
-                        connection.login(username, password)
-                        connection.send_message(mimemsg)
-                        connection.quit()
-                        print("\ncorreo electronico enviado\n")
-                    except:
-                        print(
-                            "Verifique los datos ingresados y/o verifique los permisos en su cuenta GMAIL"
-                        )
-                else:
-                    pass
-
-        return funcion_interna_e
-
-    @funcion_decorar_actualizar
-    def actualizar(
-        self,
-        nombre,
-        apellido,
-        empresa,
-        email,
-        movil,
-        codigo,
-        nombre_aux,
-        apellido_aux,
-        empresa_aux,
-        email_aux,
-        movil_aux,
-        image_64_encode_aux,
-    ):
-"""
-
-    """        
- # esta funcion se emplea para actualizar/eliminar un contacto 
-    
-        import module_variable as mod_var
-        from module_base_de_datos import operacion_db
-
-        mod_var.func_modificar = False
-
-        #aqui se actualiza la base de datos 
-
-        if askyesno("Consulta", "¿Desea actualizar el contacto?"):
-
-            sql = "UPDATE contactos SET NOMBRE = %s WHERE NOMBRE = %s"
-            val = (nombre, nombre_aux)
-            operacion_db(sql, val)
-            sql = "UPDATE contactos SET APELLIDO = %s WHERE APELLIDO = %s"
-            val = (apellido, apellido_aux)
-            operacion_db(sql, val)
-            sql = "UPDATE contactos SET EMPRESA = %s WHERE EMPRESA = %s"
-            val = (empresa, empresa_aux)
-            operacion_db(sql, val)
-            sql = "UPDATE contactos SET EMAIL = %s WHERE EMAIL = %s"
-            val = (email, email_aux)
-            operacion_db(sql, val)
-            sql = "UPDATE contactos SET TELEFONO = %s WHERE TELEFONO = %s"
-            val = (movil, movil_aux)
-            operacion_db(sql, val)
-
-            if mod_var.actualizar_imagen == True:
-                sql = "UPDATE contactos SET FOTO = %s WHERE FOTO = %s"
-                val = (mod_var.image_64_encode, image_64_encode_aux)
-                operacion_db(sql, val)
-                mod_var.actualizar_imagen = False
-
-            showinfo("OK", "Operación exitosa")
-
-    @funcion_decorar_eliminar
-    def eliminar(self, nombre, apellido, empresa, email, movil, codigo):
-
-        #esta funcion se emplea para eliminar un contacto
-
-        import module_variable as mod_var
-        from module_base_de_datos import operacion_db
-
-        mod_var.func_modificar = False
-
-        #aquí se elimina lo deseado de la base de datos
-
-        if askyesno("Consulta", "¿Desea eliminar el contacto?"):
-            sql = "DELETE FROM contactos WHERE ID = '%s'"
-            val = (codigo,)
-            operacion_db(sql, val)
-            showinfo("OK", "Operación exitosa")
-            mod_var.func_eliminar = False
-        else:
-            mod_var.var_eliminar = False
-    """
-
-    def separar_por_sitio(self, textoBuscar):
+    def separar_por_sitio(self):
 
         """ Esta funcion se utiliza tanto para buscar todos los contactos en la agenda, como así también uno específico """
 
@@ -359,8 +93,6 @@ class Registros:  # (Patr_Obs):
         mod_var.total_encontrados = 0
         sql = "SELECT *from doc_airport"
         resultado = operacion_db_buscar(sql)
-
-        # n = 5
 
         for informacion in resultado:
 
@@ -389,7 +121,6 @@ class Registros:  # (Patr_Obs):
                     informacion[5],
                 ]
                 operacion_db(sql, val)
-                # n += 5
 
             elif informacion[5] == "CBA":
                 sql = "INSERT INTO fir_cba(AIRPORT,SYSTEM,FILES,YEAR, FIR)VALUES(%s,%s,%s,%s,%s)"
@@ -401,7 +132,6 @@ class Registros:  # (Patr_Obs):
                     informacion[5],
                 ]
                 operacion_db(sql, val)
-                # n += 5
 
             elif informacion[5] == "CRV":
                 sql = "INSERT INTO fir_crv(AIRPORT,SYSTEM,FILES,YEAR, FIR)VALUES(%s,%s,%s,%s,%s)"
@@ -413,7 +143,6 @@ class Registros:  # (Patr_Obs):
                     informacion[5],
                 ]
                 operacion_db(sql, val)
-                # n += 5
 
             elif informacion[n] == "DOZ":
                 sql = "INSERT INTO fir_doz(AIRPORT,SYSTEM,FILES,YEAR, FIR)VALUES(%s,%s,%s,%s,%s)"
@@ -425,32 +154,38 @@ class Registros:  # (Patr_Obs):
                     informacion[5],
                 ]
                 operacion_db(sql, val)
+
+    def analizar_por_sitio(self, check_sitio):
+
+        """ Esta uncion se utiliza tanto para buscar todos los contactos en la agenda, como así también uno específico
+        
+        from module_base_de_datos import operacion_db_buscar
+        from module_base_de_datos import operacion_db
+        import module_variable as mod_var
+
+        mod_var.encontrado = 0
+        mod_var.no_encontrado = 0
+        mod_var.total_encontrados = 0
+        sql = "SELECT *from doc_airport"
+        resultado = operacion_db_buscar(sql)
+
+        for informacion in resultado:
+
+            if informacion[5] == "EZE":
+
+                sql = "INSERT INTO fir_eze(AIRPORT,SYSTEM,FILES,YEAR, FIR)VALUES(%s,%s,%s,%s,%s)"
+                val = [
+                    informacion[1],
+                    informacion[2],
+                    informacion[3],
+                    informacion[4],
+                    informacion[5],
+                ]
+                operacion_db(sql, val)
+                # showinfo("OK", "Operación exitosa")
+                # doc_input = Doc_input(airport, system, files, year, fir)
+                # self.doc_search.append(doc_input)
                 # n += 5
-        # n = 5
-
-        """
-        for contacto in resultado:
-            for x in contacto:
-
-                if textoBuscar == "TODOS":
-                    if mod_var.encontrado == 0:
-                        n = 0
-                        while n < 6:
-                            mod_var.contacto_search.append(contacto[n])
-                            n += 1
-                        mod_var.no_encontrado = 1
-                    mod_var.encontrado = mod_var.encontrado + 1
-                    if mod_var.encontrado == 7:
-                        mod_var.encontrado = 0
-                        mod_var.contacto_encontrado = contacto
-                elif textoBuscar == x:
-                    mod_var.total_encontrados += 1
-                    mod_var.contacto_encontrado = contacto
-                    mod_var.encontrado = mod_var.encontrado + 1
-                    mod_var.no_encontrado = 1
-
-        buscartodos_boton = False
-        return mod_var.contacto_encontrado
         """
 
     def grabar(self):
@@ -460,12 +195,14 @@ class Registros:  # (Patr_Obs):
         with open("Archivo-CSV.csv", "w") as fichero:
             escribir = csv.writer(fichero)
             escribir.writerow(("ID", "airport", "system", "files", "year", "fir"))
+            n = 0
             for registers in self.doc_search:
+                n += 1
                 escribir.writerow(
                     (
                         registers.codigo,
                         registers.airport,
-                        registers.files,
+                        registers.files[n - 1],
                         registers.year,
                         registers.fir,
                     )
@@ -555,31 +292,25 @@ def exportar():
     if os.path.exists("Archivo-CSV.csv"):
         os.remove("Archivo-CSV.csv")
 
-    fichero = open("Archivo-CSV.csv", "wb")
+    fichero = open("Archivo-CSV.csv", "w")
+    escribir = csv.writer(fichero)
+    escribir.writerow(("ID", "airport", "system", "files", "year", "fir"))
+
     sql = "SELECT *FROM doc_airport"
     resultado = operacion_db_buscar(sql)
     y = 0
 
     a = len(resultado)
     if a != 0:
-        for x in resultado:
 
+        for x in resultado:
             res = resultado[y]
-            codigo = res[0]
-            airport = res[1]
-            system = res[2]
-            files = res[3]
-            year = res[4]
-            fir = res[5]
+            escribir.writerow((res[0], res[1], res[2], res[3], res[4], res[5],))
 
             y = y + 1
 
-            registro.cargar_csv(codigo, airport, system, files, year, fir)
-            registro.grabar()
-
         fichero.flush()
         fichero.close()
-
         pdf = FPDF()
         pdf.add_page()
         pdf.set_font("Arial", size=9)
@@ -589,95 +320,7 @@ def exportar():
             pdf.cell(250, 5, txt=z, ln=1, align="c")
         pdf.output("Archivo-PDF.pdf")
 
-        """
-        archivo = os.path.dirname(os.path.abspath(__file__)) + "\\Archivo-XML.xml"
-        # Creamos cabecera
-        cabecera = '<?xml version="1.0" encoding="utf-8"?>'
-        # Creamos elementos raíz
-
-        raiz = ET.Element("Agenda")
-
-        sql = "SELECT *FROM contactos"
-        resultado = operacion_db_buscar(sql)
-        y = 0
-
-        for x in resultado:
-
-            res = resultado[y]
-            codigo = res[0]
-            nombres = res[1]
-            apellidos = res[2]
-            empresas = res[3]
-            emails = res[4]
-            moviles = res[5]
-
-            y = y + 1
-
-            # Creamos atributo
-
-            usuario = ET.SubElement(raiz, "Contacto")
-            nombre = ET.SubElement(usuario, "nombre")
-            apellido = ET.SubElement(usuario, "apellido")
-            empresa = ET.SubElement(usuario, "empresa")
-            email = ET.SubElement(usuario, "email")
-            celular = ET.SubElement(usuario, "celular")
-
-            nombre.set("completo", nombres)
-            apellido.set("completo", apellidos)
-            empresa.set("completo", empresas)
-            email.set("completo", emails)
-            celular.set("completo", moviles)
-
-            nombre.text = "Registro número: " + str(codigo)
-            apellido.text = "Registro número: " + str(codigo)
-            empresa.text = "Registro número: " + str(codigo)
-            email.text = "Registro número: " + str(codigo)
-            celular.text = "Registro número: " + str(codigo)
-
-            # creamos XML
-            datos = ET.tostring(raiz)
-            datosstr = datos.decode("utf-8")
-
-        archivo = open(archivo, "w")
-        archivo.write(cabecera)
-        archivo.write(datosstr)
-        archivo.close()
-
-        # JSON
-
-        sql = "SELECT *FROM contactos"
-        resultado = operacion_db_buscar(sql)
-        y = 0
-        data = {}
-        data["contactos"] = []
-
-        for x in resultado:
-
-            res = resultado[y]
-            codigo = res[0]
-            nombres = res[1]
-            apellidos = res[2]
-            empresas = res[3]
-            emails = res[4]
-            moviles = res[5]
-
-            y = y + 1
-            data["contactos"].append(
-                {
-                    "Nombre": nombres,
-                    "Apellido": apellidos,
-                    "Empresa": empresas,
-                    "Email": emails,
-                    "Celular": moviles,
-                }
-            )
-
-            file_name = "Archivo-JSON.json"
-
-            with open(file_name, "w") as file:
-                json.dump(data, file, indent=4)
-        """
-        showinfo("Exportar", "Contactos exportados en CSV, PDF")  # , XML Y JSON")
+        showinfo("Exportar", "Archivos exportados en CSV, PDF")  # , XML Y JSON")
 
     else:
         showinfo("Exportar", "No hay registros en la base de datos")

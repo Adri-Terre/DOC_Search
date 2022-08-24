@@ -26,7 +26,7 @@ def insertar_documentacion():
 
 
 def buscartodos():
-    controller.control_separartodos()
+    controller.control_analizar_los_sitios()
 
 
 def limpiar():

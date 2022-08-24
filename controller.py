@@ -86,9 +86,13 @@ def control_buscardocumentacion(ruta="."):
             else:
                 vista.datos_carpetas.insert(INSERT, carpeta_sitio + " ")
                 vista.datos_carpetas.insert(INSERT, "No Files\n")
-        i = 90
 
-        vista.progressbar.step(i)
+        vista.progressbar.step(50)
+
+        mod.registro.separar_por_sitio()
+
+        vista.progressbar.step(99)
+
     else:
         showinfo(
             "AÑO INGRESADO", "Ingrese año del periodo a analizar",
@@ -217,7 +221,7 @@ def control_cargar_sitios():
         "CRV",
     )
 
-    mod.registro.cargar_sitios(aeropuertos, regionales)
+    # mod.registro.cargar_sitios(aeropuertos, regionales)
 
 
 def control_exportar():
@@ -233,7 +237,7 @@ def control_limpiar():
     vista.anio_input.delete(0, END)
 
 
-def control_separartodos():
+def control_analizar_los_sitios():
 
     import modulo as mod
 
@@ -250,7 +254,7 @@ def control_separartodos():
     # mod_var.buscartodos_boton = False
     # texto = contacto_a_buscar
     # texto = texto.upper()
-    contacto = mod.registro.separar_por_sitio("EZE")
+    mod.analizar_por_sitio("EZE")
 
     # if mod_var.no_encontrado == 0:
     #    vista.datos_contacto.insert(INSERT, "---*---*---<>---*---*---\n")
