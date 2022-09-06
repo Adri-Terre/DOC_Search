@@ -8,14 +8,20 @@ import module_variable as mod_var
 
 
 def connection_db():
-    # mod_var.db_table_aep
 
     """ este script permite conectarse con la tabla de la base de datos, y si no existe la crea con MySQL. """
 
+    my_db = mysql.connector.connect(host="localhost", user="root", password="")
+    mycursor = my_db.cursor()
+    sql = "DROP DATABASE IF EXISTS DOC_SEARCH"
+    mycursor.execute(sql)
+
     try:
+
         my_db = mysql.connector.connect(host="localhost", user="root", password="")
         mycursor = my_db.cursor()
-        mycursor.execute("CREATE DATABASE DOC_SEARCH")
+        sql = "CREATE DATABASE DOC_SEARCH"
+        mycursor.execute(sql)
 
         print("Nueva base de datos: doc_search - creada")
 
@@ -124,6 +130,16 @@ def connection_db():
                 YEAR = CharField()
                 FIR = CharField()
 
+            class fir_cba_pendientes(BaseModel):
+
+                AIRPORT = CharField()
+                SYSTEM = CharField()
+                MES = CharField()
+                LH = CharField()
+                PAR = CharField()
+                YEAR = CharField()
+                FIR = CharField()
+
             mibase.connect()
             mibase.create_tables([doc_airport])
             mibase.create_tables([aep_table])
@@ -132,11 +148,15 @@ def connection_db():
             mibase.create_tables([fir_crv])
             mibase.create_tables([fir_eze])
             mibase.create_tables([fir_doz])
+
+            mibase.create_tables([fir_cba_pendientes])
             db_conectado = True
 
         if err.errno == 1007:
             mod_var.db_table_aep = True
         return db_conectado
+    except:
+        pass
 
 
 def operacion_db(sql, val):

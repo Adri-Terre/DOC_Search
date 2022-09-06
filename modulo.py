@@ -49,30 +49,6 @@ class Registros:  # (Patr_Obs):
             n += 1
             # self.notificar()
 
-    """
-    def cargar_sitios(self, airport, fir):
-
-        #esta funcion carga un contacto en la base de datos
-        import module_variable as mod_var
-
-        from module_base_de_datos import operacion_db
-
-        # ------------AQUI CARGA LA BASE DE DATOS DE LA TABLA AEP_TABLE CON LOS AEROPUERTOS Y SUS FIR----------------
-
-        a = len(airport)
-        n = 0
-        while n < a:
-            sql = "INSERT INTO aep_table (AIRPORT,FIR) VALUES(%s,%s)"
-            val = [airport[n], fir[n]]
-            operacion_db(sql, val)
-            # showinfo("OK", "Operación exitosa")
-            aep_input = Aep_input(airport, fir)
-            self.doc_search.append(aep_input)
-            n += 1
-            # self.notificar()
-        mod_var.db_table_aep = True
-    """
-
     def cargar_csv(self, id, airport, system, files, year, fir):
 
         """ esta funcion carga la tabla en el .csv al exportar """
@@ -107,10 +83,7 @@ class Registros:  # (Patr_Obs):
                     informacion[5],
                 ]
                 operacion_db(sql, val)
-                # showinfo("OK", "Operación exitosa")
-                # doc_input = Doc_input(airport, system, files, year, fir)
-                # self.doc_search.append(doc_input)
-                # n += 5
+
             elif informacion[5] == "SIS":
                 sql = "INSERT INTO fir_sis(AIRPORT,SYSTEM,FILES,YEAR, FIR)VALUES(%s,%s,%s,%s,%s)"
                 val = [
@@ -155,60 +128,191 @@ class Registros:  # (Patr_Obs):
                 ]
                 operacion_db(sql, val)
 
-    def analizar_por_sitio(self, check_sitio):
+    def analizar_por_sitio(self):
 
-        """ Esta uncion se utiliza tanto para buscar todos los contactos en la agenda, como así también uno específico
-        
+        # Esta uncion se utiliza tanto para buscar todos los contactos en la agenda, como así también uno específico
+
         from module_base_de_datos import operacion_db_buscar
         from module_base_de_datos import operacion_db
         import module_variable as mod_var
 
-        mod_var.encontrado = 0
-        mod_var.no_encontrado = 0
-        mod_var.total_encontrados = 0
-        sql = "SELECT *from doc_airport"
+        array_ils = ["LH", "PARAMETROS", "DME ILS PARAMETROS"]
+        array_vor = ["LH", "PARAMETROS", "PARAMETROS II", "DME VOR PARAMETROS"]
+        array_li = ["LH", "PARAMETROS"]
+        files_mes = []
+
+        sql = "SELECT *from fir_cba"
         resultado = operacion_db_buscar(sql)
 
+        # mes_check = 1
+        mes_anterior = 0
+        for sistema in resultado:
+            aux_system = sistema[2]
+            mes_anterior = sistema[3]
+            mes_anterior = mes_anterior[5] + mes_anterior[6]
+            aux_mes_anterior = int(mes_anterior)
+            break
         for informacion in resultado:
+            # aux_system = informacion[2]
+            file_cadena = informacion[3]
+            mes = file_cadena[5] + file_cadena[6]
+            # word = file_cadena.find("LH")
+            mes_array = int(mes)
 
-            if informacion[5] == "EZE":
+            # if int(mes_anterior) <= int(mes) & var_print == True:
 
-                sql = "INSERT INTO fir_eze(AIRPORT,SYSTEM,FILES,YEAR, FIR)VALUES(%s,%s,%s,%s,%s)"
+            if (informacion[2] == aux_system) & ((aux_mes_anterior) == int(mes)):
+                files_mes.append(informacion[3])
+                aux_mes_anterior = int(mes)
+
+            else:
+                a = 0
+                b = len(files_mes)
+                c = 0
+                while a < b:
+                    word = files_mes[a].find("LH")
+                    if word != -1:
+                        while array_ils[c] == "LH":
+                            array_ils_remove = array_ils.pop(c)
+                            c = 0
+                        c += 1
+
+                    # word = file_mes[a].find("PARAMETROS")
+                    elif files_mes[a].find("PARAMETROS") != -1:
+                        c = 0
+                        while array_ils[c] == "PARAMETROS":
+                            array_ils_remove = array_ils.pop(c)
+                            c = 0
+                        c += 1
+                    else:
+                        word = files_mes[a].find("DME PARAMETROS")
+                        if word != -1:
+                            c = 0
+                            while array_ils[c] == "DME PARAMETROS":
+                                array_ils_remove = array_ils.pop(c)
+                                c = 0
+                            c += 1
+                    a += 1
+
+                Str_ILS = "-".join(array_ils)
+                sql = "INSERT INTO fir_cba_pendientes(AIRPORT,SYSTEM,MES,LH,PAR,YEAR,FIR)VALUES(%s,%s,%s,%s,%s,%s,%s)"
                 val = [
                     informacion[1],
                     informacion[2],
-                    informacion[3],
+                    str(aux_mes_anterior),
+                    "pendiente:" + "" + Str_ILS,
+                    "pendiente",
                     informacion[4],
                     informacion[5],
                 ]
                 operacion_db(sql, val)
-                # showinfo("OK", "Operación exitosa")
-                # doc_input = Doc_input(airport, system, files, year, fir)
-                # self.doc_search.append(doc_input)
-                # n += 5
-        """
 
-    def grabar(self):
+                files_mes = []
+                files_mes.append(informacion[3])
+                aux_mes_anterior = int(mes)
 
-        """ esta funcion se emplea para exportar la agenda a .csv"""
+                array_ils = ["LH", "PARAMETROS", "DME ILS PARAMETROS"]
+                array_vor = ["LH", "PARAMETROS", "PARAMETROS II", "DME VOR PARAMETROS"]
+                array_li = ["LH", "PARAMETROS"]
 
-        with open("Archivo-CSV.csv", "w") as fichero:
-            escribir = csv.writer(fichero)
-            escribir.writerow(("ID", "airport", "system", "files", "year", "fir"))
-            n = 0
-            for registers in self.doc_search:
-                n += 1
-                escribir.writerow(
-                    (
-                        registers.codigo,
-                        registers.airport,
-                        registers.files[n - 1],
-                        registers.year,
-                        registers.fir,
+            """
+            while int(mes) != mes_check:
+                # mes_pendiente=str(mes_check)
+                # print(type(mes_pendiente))
+                # mes_check += 1
+                sql = "INSERT INTO fir_cba_pendientes(AIRPORT,SYSTEM,MES,LH,PAR,YEAR,FIR)VALUES(%s,%s,%s,%s,%s,%s,%s)"
+                val = [
+                    informacion[1],
+                    informacion[2],
+                    str(mes_check),
+                    "pendiente",
+                    "pendiente",
+                    informacion[4],
+                    informacion[5],
+                ]
+                # print(val)
+                operacion_db(sql, val)
+                # mes_anterior = mes
+                mes_check += 1
+
+            else:
+                # if mes_anterior!=int(mes): #
+                # mes_anterior = mes_check
+                # mes_check += 1
+
+                # files_mes.append(informacion[3])
+
+                if int(mes_anterior) != int(mes):
+                    print(
+                        "aca empieza a analizare si impacta en base de datos filesmes con len, mes:",
+                        mes_anterior,
                     )
-                )
+                    mes_anterior = mes
+                    mes_check = mes
+                    mes_check = int(mes_check)
+                    mes_check += 1
+                    files_mes = informacion[3]
 
-        fichero.close()
+                else:
+                    files_mes.append(informacion[3])
+                    mes_check += 1
+            #else:
+            #    files_mes.append(informacion[3])
+            #    mes_check += 1
+
+                # if informacion[2]=="VOR":
+
+                # elif informacion[2]=="ILS":
+
+                # elif informacion[2]=="LI":
+
+                # if word != -1:
+                #    print("lh esta")
+            """
+            """
+                else:
+
+                    # if file_cadena.find("PARAMETROS") != 1:
+                    #    print("PARA OK")
+                    sql = "INSERT INTO fir_cba_pendientes(AIRPORT,SYSTEM,MES,LH,YEAR,FIR)VALUES(%s,%s,%s,%s,%s,%s)"
+                    val = [
+                        informacion[1],
+                        informacion[2],
+                        mes,
+                        "pendiente",
+                        # "-",
+                        informacion[4],
+                        informacion[5],
+                    ]
+                    operacion_db(sql, val)
+                    # else:
+                    #    print("replace")
+
+                word = file_cadena.find("PARAMETROS")
+                if word != -1:
+                    print("PARAMETROS esta")
+
+                else:
+
+                    # if file_cadena.find("PARAMETROS") != 1:
+                    #    print("PARA OK")
+                    # if(mes)
+                    sql = "INSERT INTO fir_cba_pendientes(AIRPORT,SYSTEM,MES,PAR,YEAR,FIR)VALUES(%s,%s,%s,%s,%s,%s)"
+                    val = [
+                        informacion[1],
+                        informacion[2],
+                        mes,
+                        "pendiente",
+                        # "-",
+                        informacion[4],
+                        informacion[5],
+                    ]
+                    operacion_db(sql, val)
+                """
+            # showinfo("OK", "Operación exitosa")
+            # doc_input = Doc_input(airport, system, files, year, fir)
+            # self.doc_search.append(doc_input)
+            # n += 5
 
 
 registro = Registros()

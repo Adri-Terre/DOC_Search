@@ -89,7 +89,7 @@ def control_buscardocumentacion(ruta="."):
 
         vista.progressbar.step(50)
 
-        mod.registro.separar_por_sitio()
+        mod.registro.separar_por_sitio()  # aca llama a la funcion que separa la documentación por region
 
         vista.progressbar.step(99)
 
@@ -243,80 +243,4 @@ def control_analizar_los_sitios():
 
     """esta funcion busca un todo lo existente en las carpetas a analizar, y muestra en la pantalla cantidades y labels"""
 
-    # import module_variable as mod_var
-
-    # contacto_a_buscar = vista.e1_input.get()
-    # vista.datos_contacto.delete(1.0, END)
-
-    # mod_var.func_modificar = False
-    # vista.w8.destroy()
-    # mod_var.contacto_search.clear()
-    # mod_var.buscartodos_boton = False
-    # texto = contacto_a_buscar
-    # texto = texto.upper()
-    mod.analizar_por_sitio("EZE")
-
-    # if mod_var.no_encontrado == 0:
-    #    vista.datos_contacto.insert(INSERT, "---*---*---<>---*---*---\n")
-    #    vista.datos_contacto.insert(INSERT, "CONTACTO NO ENCONTRADO\n")
-    # else:
-    #    n = 0
-    #    while n < 6:
-    #        mod_var.contacto_search.append(contacto[n])
-    #        n += 1
-
-    #    if mod_var.buscartodos_boton == False:
-    #        mod_var.image_64_encode = contacto[6]
-    #        if mod_var.image_64_encode != b"":
-    #            modulo.foto_perfil_decode()
-    #    n = 0
-    #    x = 0
-    #    ready = False
-    #    a = len(mod_var.contacto_search)
-    #    while n < a:
-    #        vista.datos_contacto.insert(
-    #            INSERT, "Codigo: {}\n".format(mod_var.contacto_search[n])
-    #        )
-    #        n += 1
-    #        x += 1
-    #        vista.datos_contacto.insert(
-    #            INSERT, "Nombre: {}\n".format(mod_var.contacto_search[n])
-    #        )
-    #        n += 1
-    #        x += 1
-    #        vista.datos_contacto.insert(
-    #            INSERT, "Apellido: {}\n".format(mod_var.contacto_search[n])
-    #        )
-    #        n += 1
-    #        x += 1
-    #        vista.datos_contacto.insert(
-    #            INSERT, "Empresa: {}\n".format(mod_var.contacto_search[n])
-    #        )
-    #        n += 1
-    #        x += 1
-    #        vista.datos_contacto.insert(
-    #            INSERT, "Email: {}\n".format(mod_var.contacto_search[n])
-    #        )
-    #        n += 1
-    #        x += 1
-    #        vista.datos_contacto.insert(
-    #            INSERT, "Teléfono: {}\n".format(mod_var.contacto_search[n])
-    #        )
-    #        n += 1
-    #        x += 1
-    #        if x == 6:
-    #            vista.datos_contacto.insert(INSERT, "---*---*---<>---*---*---\n")
-    #        x = 0
-    # if (
-    #    (mod_var.func_modificar == False)
-    #    & (mod_var.no_encontrado == 1)
-    #    & (mod_var.image_64_encode != b"")
-    #    & (mod_var.encontrado < 2)
-    # ):
-    #    vista.w8 = Label(vista.master, image=mod_var.render)
-    #    vista.w8.image = mod_var.render
-    #    vista.w8.place(x=180, y=60)
-    #    mod_var.contacto_search.clear()
-    # else:
-    #    vista.w8 = Label(vista.master, text="> FOTO DE PERFIL: NO DISPONIBLE <")
-    #    vista.w8.place(x=165, y=100)
+    mod.registro.analizar_por_sitio()
