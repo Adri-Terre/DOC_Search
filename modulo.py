@@ -136,9 +136,14 @@ class Registros:  # (Patr_Obs):
         from module_base_de_datos import operacion_db
         import module_variable as mod_var
 
-        array_ils = ["LH", "PARAMETROS", "DME ILS PARAMETROS"]
-        array_vor = ["LH", "PARAMETROS", "PARAMETROS II", "DME VOR PARAMETROS"]
-        array_li = ["LH", "PARAMETROS"]
+        array_ils = ["LH", "ILS PARAMETROS", "DME ILS PARAMETROS"]
+        array_vor = [
+            "LH",
+            "VOR PARAMETROS I",
+            "VOR PARAMETROS II",
+            "DME VOR PARAMETROS",
+        ]
+        array_li = ["LH", "LI PARAMETROS"]
         files_mes = []
 
         sql = "SELECT *from fir_cba"
@@ -147,6 +152,7 @@ class Registros:  # (Patr_Obs):
         # mes_check = 1
         mes_anterior = 0
         for sistema in resultado:
+            aux_airport = sistema[1]
             aux_system = sistema[2]
             mes_anterior = sistema[3]
             mes_anterior = mes_anterior[5] + mes_anterior[6]
@@ -154,165 +160,107 @@ class Registros:  # (Patr_Obs):
             break
         for informacion in resultado:
             # aux_system = informacion[2]
+
             file_cadena = informacion[3]
             mes = file_cadena[5] + file_cadena[6]
             # word = file_cadena.find("LH")
             mes_array = int(mes)
 
-            # if int(mes_anterior) <= int(mes) & var_print == True:
-
             if (informacion[2] == aux_system) & ((aux_mes_anterior) == int(mes)):
                 files_mes.append(informacion[3])
+                # aux_airport = informacion[1]
+                # aux_system = informacion[2]
                 aux_mes_anterior = int(mes)
 
-            else:
+            else:  # una vez cargado todo el mes, analiza la información
                 a = 0
                 b = len(files_mes)
                 c = 0
+
+                if aux_system == "ILS":
+                    array_system = array_ils
+                    # self.funcion_ils(a, b, c)
+                elif aux_system == "VOR":
+                    array_system = array_vor
+                    # self.funcion_ils(a, b, c)
+                elif aux_system == "LI":
+                    array_system = array_li
+
                 while a < b:
+                    c = 0  # este
                     word = files_mes[a].find("LH")
                     if word != -1:
-                        while array_ils[c] == "LH":
-                            array_ils_remove = array_ils.pop(c)
+                        if array_system[c] == "LH":
+                            # array_ils_remove = array_ils.pop(c)
+                            array_removed = array_system.pop(c)
                             c = 0
                         c += 1
 
                     # word = file_mes[a].find("PARAMETROS")
                     elif files_mes[a].find("PARAMETROS") != -1:
                         c = 0
-                        while array_ils[c] == "PARAMETROS":
-                            array_ils_remove = array_ils.pop(c)
-                            c = 0
-                        c += 1
-                    else:
-                        word = files_mes[a].find("DME PARAMETROS")
-                        if word != -1:
-                            c = 0
-                            while array_ils[c] == "DME PARAMETROS":
-                                array_ils_remove = array_ils.pop(c)
-                                c = 0
+                        while c < len(array_system):
+                            if (
+                                (array_system[c] == "ILS PARAMETROS")
+                                or (array_system[c] == "VOR PARAMETROS I")
+                                or (array_system[c] == "VOR PARAMETROS II")
+                                or (array_system[c] == "DME PARAMETROS")
+                                or (array_system[c] == "LI PARAMETROS")
+                            ):
+                                # array_ils_remove = array_ils.pop(c)
+                                array_removed = array_system.pop(c)
+                                # c = 0
+                            # a += 1
                             c += 1
+                    # else:
+                    #    word = files_mes[a].find("DME PARAMETROS")
+                    #    if word != -1:
+                    #        # c = 0
+                    #        while array_system[c] == "DME PARAMETROS":
+                    #            # array_ils_remove = array_ils.pop(c)
+                    #            array_remove = array_system.pop(c)
+                    #            c = 0
+                    #        c += 1
                     a += 1
 
-                Str_ILS = "-".join(array_ils)
-                sql = "INSERT INTO fir_cba_pendientes(AIRPORT,SYSTEM,MES,LH,PAR,YEAR,FIR)VALUES(%s,%s,%s,%s,%s,%s,%s)"
-                val = [
-                    informacion[1],
-                    informacion[2],
-                    str(aux_mes_anterior),
-                    "pendiente:" + "" + Str_ILS,
-                    "pendiente",
-                    informacion[4],
-                    informacion[5],
-                ]
-                operacion_db(sql, val)
+                # Str_ILS = "-".join(array_ils)
+                Str_system = "-".join(array_system)
+
+                if Str_system != "":
+
+                    sql = "INSERT INTO fir_cba_pendientes(AIRPORT,SYSTEM,MES,OBSERVACIONES,YEAR,FIR)VALUES(%s,%s,%s,%s,%s,%s)"
+                    val = [
+                        aux_airport,
+                        aux_system,
+                        str(aux_mes_anterior),
+                        "Falta entregar: " + "" + Str_system,
+                        informacion[4],
+                        informacion[5],
+                    ]
+                    operacion_db(sql, val)
 
                 files_mes = []
                 files_mes.append(informacion[3])
                 aux_mes_anterior = int(mes)
+                aux_airport = informacion[1]
+                aux_system = informacion[2]
 
-                array_ils = ["LH", "PARAMETROS", "DME ILS PARAMETROS"]
-                array_vor = ["LH", "PARAMETROS", "PARAMETROS II", "DME VOR PARAMETROS"]
-                array_li = ["LH", "PARAMETROS"]
-
-            """
-            while int(mes) != mes_check:
-                # mes_pendiente=str(mes_check)
-                # print(type(mes_pendiente))
-                # mes_check += 1
-                sql = "INSERT INTO fir_cba_pendientes(AIRPORT,SYSTEM,MES,LH,PAR,YEAR,FIR)VALUES(%s,%s,%s,%s,%s,%s,%s)"
-                val = [
-                    informacion[1],
-                    informacion[2],
-                    str(mes_check),
-                    "pendiente",
-                    "pendiente",
-                    informacion[4],
-                    informacion[5],
+                array_ils = ["LH", "ILS PARAMETROS", "DME ILS PARAMETROS"]
+                array_vor = [
+                    "LH",
+                    "VOR PARAMETROS I",
+                    "VOR PARAMETROS II",
+                    "DME VOR PARAMETROS",
                 ]
-                # print(val)
-                operacion_db(sql, val)
-                # mes_anterior = mes
-                mes_check += 1
+                array_li = ["LH", "LI PARAMETROS"]
+                # array_ils = ["LH", "ILS PARAMETROS", "DME ILS PARAMETROS"]
+                # array_vor = ["LH", "PARAMETROS", "PARAMETROS II", "DME VOR PARAMETROS"]
+                # array_li = ["LH", "PARAMETROS"]
 
-            else:
-                # if mes_anterior!=int(mes): #
-                # mes_anterior = mes_check
-                # mes_check += 1
-
-                # files_mes.append(informacion[3])
-
-                if int(mes_anterior) != int(mes):
-                    print(
-                        "aca empieza a analizare si impacta en base de datos filesmes con len, mes:",
-                        mes_anterior,
-                    )
-                    mes_anterior = mes
-                    mes_check = mes
-                    mes_check = int(mes_check)
-                    mes_check += 1
-                    files_mes = informacion[3]
-
-                else:
-                    files_mes.append(informacion[3])
-                    mes_check += 1
-            #else:
-            #    files_mes.append(informacion[3])
-            #    mes_check += 1
-
-                # if informacion[2]=="VOR":
-
-                # elif informacion[2]=="ILS":
-
-                # elif informacion[2]=="LI":
-
-                # if word != -1:
-                #    print("lh esta")
-            """
-            """
-                else:
-
-                    # if file_cadena.find("PARAMETROS") != 1:
-                    #    print("PARA OK")
-                    sql = "INSERT INTO fir_cba_pendientes(AIRPORT,SYSTEM,MES,LH,YEAR,FIR)VALUES(%s,%s,%s,%s,%s,%s)"
-                    val = [
-                        informacion[1],
-                        informacion[2],
-                        mes,
-                        "pendiente",
-                        # "-",
-                        informacion[4],
-                        informacion[5],
-                    ]
-                    operacion_db(sql, val)
-                    # else:
-                    #    print("replace")
-
-                word = file_cadena.find("PARAMETROS")
-                if word != -1:
-                    print("PARAMETROS esta")
-
-                else:
-
-                    # if file_cadena.find("PARAMETROS") != 1:
-                    #    print("PARA OK")
-                    # if(mes)
-                    sql = "INSERT INTO fir_cba_pendientes(AIRPORT,SYSTEM,MES,PAR,YEAR,FIR)VALUES(%s,%s,%s,%s,%s,%s)"
-                    val = [
-                        informacion[1],
-                        informacion[2],
-                        mes,
-                        "pendiente",
-                        # "-",
-                        informacion[4],
-                        informacion[5],
-                    ]
-                    operacion_db(sql, val)
-                """
-            # showinfo("OK", "Operación exitosa")
-            # doc_input = Doc_input(airport, system, files, year, fir)
-            # self.doc_search.append(doc_input)
-            # n += 5
+        showinfo("EXPORTAR FIR", "Operación exitosa")
+        # doc_input = Doc_input(airport, system, files, year, fir)
+        # self.doc_search.append(doc_input)
+        # n += 5
 
 
 registro = Registros()

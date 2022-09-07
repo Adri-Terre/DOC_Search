@@ -135,8 +135,7 @@ def connection_db():
                 AIRPORT = CharField()
                 SYSTEM = CharField()
                 MES = CharField()
-                LH = CharField()
-                PAR = CharField()
+                OBSERVACIONES = CharField()
                 YEAR = CharField()
                 FIR = CharField()
 
