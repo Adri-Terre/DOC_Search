@@ -9,19 +9,22 @@ from tkinter import ttk  # para la barra de progreso
 
 def autor():
 
-    """ esta funcion crea una pantalla donde se muestran los integrantes del proyecto"""
+    """esta funcion crea una pantalla donde se muestran los integrantes del proyecto"""
 
     win = Toplevel()
     win.title("Autor")
     win.geometry("300x100")
-    label_autor = Label(win, text="ING. TERRENI ADRIAN HORACIO\n",)
+    label_autor = Label(
+        win,
+        text="ING. TERRENI ADRIAN HORACIO\n",
+    )
 
     label_autor.place(x=60, y=20)
 
 
 def insertar_documentacion():
 
-    """ esta funcion, a traves del controller, inserta la documentacion a analizar"""
+    """esta funcion, a traves del controller, inserta la documentacion a analizar"""
     controller.control_buscardocumentacion()
 
 
@@ -35,7 +38,7 @@ def limpiar():
 
 def call_exportar():
 
-    """ esta funcion, a traves del controller, exporta los datos de la agenda en .pdf, .csv, xml, json """
+    """esta funcion, a traves del controller, exporta los datos de la agenda en .pdf, .csv, xml, json"""
 
     controller.control_exportar()
 

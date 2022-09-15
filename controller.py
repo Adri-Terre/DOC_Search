@@ -95,7 +95,8 @@ def control_buscardocumentacion(ruta="."):
 
     else:
         showinfo(
-            "AÑO INGRESADO", "Ingrese año del periodo a analizar",
+            "AÑO INGRESADO",
+            "Ingrese año del periodo a analizar",
         )
     return archivos
 

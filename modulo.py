@@ -31,7 +31,7 @@ class Registros:  # (Patr_Obs):
 
     def cargar_doc(self, airport, system, files, year, fir):
 
-        """ esta funcion carga un contacto en la base de datos """
+        """esta funcion carga un contacto en la base de datos"""
 
         from module_base_de_datos import operacion_db
 
@@ -51,14 +51,14 @@ class Registros:  # (Patr_Obs):
 
     def cargar_csv(self, id, airport, system, files, year, fir):
 
-        """ esta funcion carga la tabla en el .csv al exportar """
+        """esta funcion carga la tabla en el .csv al exportar"""
 
         registers = Doc_input(airport, system, files, year, fir)
         self.doc_search.append(registers)
 
     def separar_por_sitio(self):
 
-        """ Esta funcion se utiliza tanto para buscar todos los contactos en la agenda, como así también uno específico """
+        """Esta funcion se utiliza tanto para buscar todos los contactos en la agenda, como así también uno específico"""
 
         from module_base_de_datos import operacion_db_buscar
         from module_base_de_datos import operacion_db
@@ -131,10 +131,21 @@ class Registros:  # (Patr_Obs):
     def analizar_por_sitio(self):
 
         # Esta uncion se utiliza tanto para buscar todos los contactos en la agenda, como así también uno específico
-
+        import re
         from module_base_de_datos import operacion_db_buscar
         from module_base_de_datos import operacion_db
         import module_variable as mod_var
+
+        global Str_system
+        global informacion
+        global mes
+        global files_mes
+        global aux_mes_anterior
+        global aux_airport
+        global aux_system
+        global array_ils
+        global array_li
+        global array_vor
 
         array_ils = ["LH", "ILS PARAMETROS", "DME ILS PARAMETROS"]
         array_vor = [
@@ -144,6 +155,9 @@ class Registros:  # (Patr_Obs):
             "DME VOR PARAMETROS",
         ]
         array_li = ["LH", "LI PARAMETROS"]
+
+        array_total = set(array_ils + array_li + array_vor)
+
         files_mes = []
 
         sql = "SELECT *from fir_cba"
@@ -186,81 +200,146 @@ class Registros:  # (Patr_Obs):
                 elif aux_system == "LI":
                     array_system = array_li
 
-                while a < b:
-                    c = 0  # este
-                    word = files_mes[a].find("LH")
-                    if word != -1:
-                        if array_system[c] == "LH":
-                            # array_ils_remove = array_ils.pop(c)
-                            array_removed = array_system.pop(c)
-                            c = 0
-                        c += 1
+                l = 0
 
-                    # word = file_mes[a].find("PARAMETROS")
-                    elif files_mes[a].find("PARAMETROS") != -1:
-                        c = 0
-                        while c < len(array_system):
-                            if (
-                                (array_system[c] == "ILS PARAMETROS")
-                                or (array_system[c] == "VOR PARAMETROS I")
-                                or (array_system[c] == "VOR PARAMETROS II")
-                                or (array_system[c] == "DME PARAMETROS")
-                                or (array_system[c] == "LI PARAMETROS")
-                            ):
-                                # array_ils_remove = array_ils.pop(c)
-                                array_removed = array_system.pop(c)
-                                # c = 0
-                            # a += 1
-                            c += 1
-                    # else:
-                    #    word = files_mes[a].find("DME PARAMETROS")
-                    #    if word != -1:
-                    #        # c = 0
-                    #        while array_system[c] == "DME PARAMETROS":
-                    #            # array_ils_remove = array_ils.pop(c)
-                    #            array_remove = array_system.pop(c)
-                    #            c = 0
-                    #        c += 1
+                while a < b:
+                    # c = 0  # este
+
+                    for array_data in array_total:
+
+                        word = files_mes[a].find(array_data)
+                        if word != -1:
+
+                            # if l < len(array_system):
+                            try:
+                                if array_data == "VOR PARAMETROS II":
+                                    array_system.remove(array_data)
+                                    break
+                                else:
+                                    command = str(array_data)
+                                    array_system.remove(command)
+                                    break
+                            except:
+                                pass
+
+                    """
+                            match command:
+                                case "LH":
+                                    print("Hello to you too!")
+                                    break
+                                case "ILS PARAMETROS":
+                                    print("Hello to you too!")
+                                    break
+                                case "VOR PARAMETROS I":
+                                    print("See you later")
+                                    break
+                                case "VOR PARAMETROS II":
+                                    print("See you later")
+                                    break
+                                case "DME ILS PARAMETROS":
+                                    print("See you later")
+                                    break
+                                case "DME VOR PARAMETROS":
+                                    print("See you later")
+                                    break
+                                case "LI PARAMETROS":
+                                    print("See you later")
+                                    break
+                        """
+
                     a += 1
 
-                # Str_ILS = "-".join(array_ils)
                 Str_system = "-".join(array_system)
+                self.registrar_pendientes()
 
-                if Str_system != "":
+        ######################33
+        a = 0
+        b = len(files_mes)
+        c = 0
 
-                    sql = "INSERT INTO fir_cba_pendientes(AIRPORT,SYSTEM,MES,OBSERVACIONES,YEAR,FIR)VALUES(%s,%s,%s,%s,%s,%s)"
-                    val = [
-                        aux_airport,
-                        aux_system,
-                        str(aux_mes_anterior),
-                        "Falta entregar: " + "" + Str_system,
-                        informacion[4],
-                        informacion[5],
-                    ]
-                    operacion_db(sql, val)
+        if aux_system == "ILS":
+            array_system = array_ils
+            # self.funcion_ils(a, b, c)
+        elif aux_system == "VOR":
+            array_system = array_vor
+            # self.funcion_ils(a, b, c)
+        elif aux_system == "LI":
+            array_system = array_li
 
-                files_mes = []
-                files_mes.append(informacion[3])
-                aux_mes_anterior = int(mes)
-                aux_airport = informacion[1]
-                aux_system = informacion[2]
+        l = 0
 
-                array_ils = ["LH", "ILS PARAMETROS", "DME ILS PARAMETROS"]
-                array_vor = [
-                    "LH",
-                    "VOR PARAMETROS I",
-                    "VOR PARAMETROS II",
-                    "DME VOR PARAMETROS",
-                ]
-                array_li = ["LH", "LI PARAMETROS"]
-                # array_ils = ["LH", "ILS PARAMETROS", "DME ILS PARAMETROS"]
-                # array_vor = ["LH", "PARAMETROS", "PARAMETROS II", "DME VOR PARAMETROS"]
-                # array_li = ["LH", "PARAMETROS"]
+        while a < b:
+            # c = 0  # este
 
+            for array_data in array_total:
+
+                word = files_mes[a].find(array_data)
+                if word != -1:
+
+                    # if l < len(array_system):
+                    try:
+                        if array_data == "VOR PARAMETROS II":
+                            array_system.remove(array_data)
+                            break
+                        else:
+                            command = str(array_data)
+                            array_system.remove(command)
+                            break
+                    except:
+                        pass
+            a += 1
+        self.registrar_pendientes()
         showinfo("EXPORTAR FIR", "Operación exitosa")
-        # doc_input = Doc_input(airport, system, files, year, fir)
-        # self.doc_search.append(doc_input)
-        # n += 5
+
+    def registrar_pendientes(self):
+
+        from module_base_de_datos import operacion_db
+
+        global Str_system
+        global informacion
+        global mes
+        global files_mes
+        global aux_mes_anterior
+        global aux_airport
+        global aux_system
+        global array_ils
+        global array_li
+        global array_vor
+
+        # Str_system = "-".join(array_system)
+
+        if Str_system != "":
+
+            sql = "INSERT INTO fir_cba_pendientes(AIRPORT,SYSTEM,MES,OBSERVACIONES,YEAR,FIR)VALUES(%s,%s,%s,%s,%s,%s)"
+            val = [
+                aux_airport,
+                aux_system,
+                str(aux_mes_anterior),
+                "Falta entregar: " + "" + Str_system,
+                informacion[4],
+                informacion[5],
+            ]
+            operacion_db(sql, val)
+
+        files_mes = []
+        files_mes.append(informacion[3])
+        aux_mes_anterior = int(mes)
+        aux_airport = informacion[1]
+        aux_system = informacion[2]
+
+        array_ils = ["LH", "ILS PARAMETROS", "DME ILS PARAMETROS"]
+        array_vor = [
+            "LH",
+            "VOR PARAMETROS I",
+            "VOR PARAMETROS II",
+            "DME VOR PARAMETROS",
+        ]
+        array_li = ["LH", "LI PARAMETROS"]
+        # array_ils = ["LH", "ILS PARAMETROS", "DME ILS PARAMETROS"]
+        # array_vor = ["LH", "PARAMETROS", "PARAMETROS II", "DME VOR PARAMETROS"]
+        # array_li = ["LH", "PARAMETROS"]
+
+        # showinfo("EXPORTAR FIR", "Operación exitosa")
 
 
 registro = Registros()
@@ -269,7 +348,7 @@ registro = Registros()
 
 def limpiar():
 
-    """ funcion que limpia los campos en la pantalla principal """
+    """funcion que limpia los campos en la pantalla principal"""
 
     from_controller_limpiar = True
 
@@ -278,7 +357,7 @@ def limpiar():
 
 def clear_window():
 
-    """ esta funcion limpia la pantalla del menú editar """
+    """esta funcion limpia la pantalla del menú editar"""
 
     from_controller_limpiar_editar = True
 
@@ -287,7 +366,7 @@ def clear_window():
 
 def foto_perfil_alta():
 
-    """ Esta funcion carga y asocia una foto de perfil con el nuevo contacto. Se emplea "base64" para codificar la imagen """
+    """Esta funcion carga y asocia una foto de perfil con el nuevo contacto. Se emplea "base64" para codificar la imagen"""
 
     import module_variable as mod_var
 
@@ -302,7 +381,7 @@ def foto_perfil_alta():
 
 def foto_perfil_decode():
 
-    """ Esta funcion decodifica una foto de perfil previamente codificada en "base64" asociada al contacto buscado """
+    """Esta funcion decodifica una foto de perfil previamente codificada en "base64" asociada al contacto buscado"""
 
     import module_variable as mod_var
 
@@ -331,7 +410,7 @@ def foto_perfil_decode():
 
 def exportar():
 
-    """ esta funcion exporta los datos de la agenda en .pdf .csv .xml y .json"""
+    """esta funcion exporta los datos de la agenda en .pdf .csv .xml y .json"""
 
     from module_base_de_datos import operacion_db_buscar
     import xml.etree.ElementTree as ET
@@ -357,7 +436,16 @@ def exportar():
 
         for x in resultado:
             res = resultado[y]
-            escribir.writerow((res[0], res[1], res[2], res[3], res[4], res[5],))
+            escribir.writerow(
+                (
+                    res[0],
+                    res[1],
+                    res[2],
+                    res[3],
+                    res[4],
+                    res[5],
+                )
+            )
 
             y = y + 1
 
