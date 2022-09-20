@@ -146,6 +146,7 @@ class Registros:  # (Patr_Obs):
         global array_ils
         global array_li
         global array_vor
+        global array_total
 
         array_ils = ["LH", "ILS PARAMETROS", "DME ILS PARAMETROS"]
         array_vor = [
@@ -187,6 +188,9 @@ class Registros:  # (Patr_Obs):
                 aux_mes_anterior = int(mes)
 
             else:  # una vez cargado todo el mes, analiza la información
+
+                self.check_array()
+                """
                 a = 0
                 b = len(files_mes)
                 c = 0
@@ -221,38 +225,16 @@ class Registros:  # (Patr_Obs):
                                     break
                             except:
                                 pass
-
-                    """
-                            match command:
-                                case "LH":
-                                    print("Hello to you too!")
-                                    break
-                                case "ILS PARAMETROS":
-                                    print("Hello to you too!")
-                                    break
-                                case "VOR PARAMETROS I":
-                                    print("See you later")
-                                    break
-                                case "VOR PARAMETROS II":
-                                    print("See you later")
-                                    break
-                                case "DME ILS PARAMETROS":
-                                    print("See you later")
-                                    break
-                                case "DME VOR PARAMETROS":
-                                    print("See you later")
-                                    break
-                                case "LI PARAMETROS":
-                                    print("See you later")
-                                    break
-                        """
-
+            
+        
                     a += 1
 
                 Str_system = "-".join(array_system)
                 self.registrar_pendientes()
+                """
 
         ######################33
+        """
         a = 0
         b = len(files_mes)
         c = 0
@@ -288,8 +270,66 @@ class Registros:  # (Patr_Obs):
                     except:
                         pass
             a += 1
+
+        Str_system = "-".join(array_system)
         self.registrar_pendientes()
+        """
+        self.check_array()
         showinfo("EXPORTAR FIR", "Operación exitosa")
+
+    def check_array(self):
+
+        global Str_system
+        # global informacion
+        # global mes
+        global files_mes
+        # global aux_mes_anterior
+        # global aux_airport
+        global aux_system
+        global array_ils
+        global array_li
+        global array_vor
+        global array_total
+
+        a = 0
+        b = len(files_mes)
+        c = 0
+
+        if aux_system == "ILS":
+            array_system = array_ils
+            # self.funcion_ils(a, b, c)
+        elif aux_system == "VOR":
+            array_system = array_vor
+            # self.funcion_ils(a, b, c)
+        elif aux_system == "LI":
+            array_system = array_li
+
+        l = 0
+
+        while a < b:
+            # c = 0  # este
+
+            for array_data in array_total:
+
+                word = files_mes[a].find(array_data)
+                if word != -1:
+
+                    # if l < len(array_system):
+                    try:
+                        if array_data == "VOR PARAMETROS II":
+                            array_system.remove(array_data)
+                            break
+                        else:
+                            command = str(array_data)
+                            array_system.remove(command)
+                            break
+                    except:
+                        pass
+
+            a += 1
+
+        Str_system = "-".join(array_system)
+        self.registrar_pendientes()
 
     def registrar_pendientes(self):
 
