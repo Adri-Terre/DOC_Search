@@ -9,7 +9,7 @@ import module_variable as mod_var
 
 def connection_db():
 
-    """ este script permite conectarse con la tabla de la base de datos, y si no existe la crea con MySQL. """
+    """este script permite conectarse con la tabla de la base de datos, y si no existe la crea con MySQL."""
 
     my_db = mysql.connector.connect(host="localhost", user="root", password="")
     mycursor = my_db.cursor()
@@ -139,6 +139,42 @@ def connection_db():
                 YEAR = CharField()
                 FIR = CharField()
 
+            class fir_eze_pendientes(BaseModel):
+
+                AIRPORT = CharField()
+                SYSTEM = CharField()
+                MES = CharField()
+                OBSERVACIONES = CharField()
+                YEAR = CharField()
+                FIR = CharField()
+
+            class fir_crv_pendientes(BaseModel):
+
+                AIRPORT = CharField()
+                SYSTEM = CharField()
+                MES = CharField()
+                OBSERVACIONES = CharField()
+                YEAR = CharField()
+                FIR = CharField()
+
+            class fir_sis_pendientes(BaseModel):
+
+                AIRPORT = CharField()
+                SYSTEM = CharField()
+                MES = CharField()
+                OBSERVACIONES = CharField()
+                YEAR = CharField()
+                FIR = CharField()
+
+            class fir_doz_pendientes(BaseModel):
+
+                AIRPORT = CharField()
+                SYSTEM = CharField()
+                MES = CharField()
+                OBSERVACIONES = CharField()
+                YEAR = CharField()
+                FIR = CharField()
+
             mibase.connect()
             mibase.create_tables([doc_airport])
             mibase.create_tables([aep_table])
@@ -160,7 +196,7 @@ def connection_db():
 
 def operacion_db(sql, val):
 
-    """ esta funcion, a traves de Peewee, se utiliza para grabar/actualizar los contactos en la base de datos """
+    """esta funcion, a traves de Peewee, se utiliza para grabar/actualizar los contactos en la base de datos"""
 
     my_db = MySQLDatabase(
         "doc_search", user="root", password="", host="localhost", port=3306
@@ -172,7 +208,7 @@ def operacion_db(sql, val):
 
 def operacion_db_buscar(sql):
 
-    """ esta funcion, a traves de Peewee, se utiliza para buscar los contactos en la base de datos """
+    """esta funcion, a traves de Peewee, se utiliza para buscar los contactos en la base de datos"""
 
     my_db = MySQLDatabase(
         "doc_search", user="root", password="", host="localhost", port=3306
