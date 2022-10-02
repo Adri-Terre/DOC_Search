@@ -185,6 +185,10 @@ def connection_db():
             mibase.create_tables([fir_doz])
 
             mibase.create_tables([fir_cba_pendientes])
+            mibase.create_tables([fir_eze_pendientes])
+            mibase.create_tables([fir_crv_pendientes])
+            mibase.create_tables([fir_sis_pendientes])
+            mibase.create_tables([fir_doz_pendientes])
             db_conectado = True
 
         if err.errno == 1007:

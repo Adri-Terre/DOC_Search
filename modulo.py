@@ -135,6 +135,7 @@ class Registros:  # (Patr_Obs):
         from module_base_de_datos import operacion_db_buscar
         from module_base_de_datos import operacion_db
         import module_variable as mod_var
+        from vista import combo_fir
 
         global Str_system
         global informacion
@@ -147,6 +148,8 @@ class Registros:  # (Patr_Obs):
         global array_li
         global array_vor
         global array_total
+
+        informacion = ""
 
         array_ils = ["LH", "ILS PARAMETROS", "DME ILS PARAMETROS"]
         array_vor = [
@@ -161,7 +164,9 @@ class Registros:  # (Patr_Obs):
 
         files_mes = []
 
-        sql = "SELECT *from fir_cba"
+        # sql = "SELECT *from fir_cba"
+        fir_seleccionada = combo_fir.get()
+        sql = "SELECT *from " + fir_seleccionada
         resultado = operacion_db_buscar(sql)
 
         # mes_check = 1
@@ -274,8 +279,15 @@ class Registros:  # (Patr_Obs):
         Str_system = "-".join(array_system)
         self.registrar_pendientes()
         """
-        self.check_array()
-        showinfo("EXPORTAR FIR", "Operación exitosa")
+        if informacion != "":
+            self.check_array()
+            # aca habria que llamar a exportar
+            showinfo("EXPORTAR FIR", "Operación exitosa")
+            aux_system = ""
+            array_system = ""
+            informacion = []
+        else:
+            showinfo("EXPORTAR FIR", "No hay información disponible")
 
     def check_array(self):
 
@@ -283,8 +295,10 @@ class Registros:  # (Patr_Obs):
         # global informacion
         # global mes
         global files_mes
+        global aux_system
         # global aux_mes_anterior
         # global aux_airport
+
         global aux_system
         global array_ils
         global array_li
@@ -334,6 +348,7 @@ class Registros:  # (Patr_Obs):
     def registrar_pendientes(self):
 
         from module_base_de_datos import operacion_db
+        from vista import combo_fir
 
         global Str_system
         global informacion
@@ -347,10 +362,14 @@ class Registros:  # (Patr_Obs):
         global array_vor
 
         # Str_system = "-".join(array_system)
-
+        fir_seleccionada = combo_fir.get()
         if Str_system != "":
 
-            sql = "INSERT INTO fir_cba_pendientes(AIRPORT,SYSTEM,MES,OBSERVACIONES,YEAR,FIR)VALUES(%s,%s,%s,%s,%s,%s)"
+            sql = (
+                "INSERT INTO "
+                + fir_seleccionada
+                + "_pendientes(AIRPORT,SYSTEM,MES,OBSERVACIONES,YEAR,FIR)VALUES(%s,%s,%s,%s,%s,%s)"
+            )
             val = [
                 aux_airport,
                 aux_system,

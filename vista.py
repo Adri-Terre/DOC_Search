@@ -1,6 +1,8 @@
+from msilib.schema import ComboBox
 from tkinter import *
 from tkinter.messagebox import *
 import sys
+from typing import Container
 from module_base_de_datos import connection_db
 import module_variable as mod_var
 import controller
@@ -28,8 +30,8 @@ def insertar_documentacion():
     controller.control_buscardocumentacion()
 
 
-def buscartodos():
-    controller.control_analizar_los_sitios()
+def analizar():
+    controller.control_analizar_por_sitio()
 
 
 def limpiar():
@@ -54,6 +56,7 @@ anio_input = Entry(master)
 anio_input.configure(width=20)
 anio_input.place(x=10, y=30)
 anio_input.focus_set()
+
 
 """ cuadro de texto donde van a aparecer los datos de contacto """
 
@@ -100,9 +103,17 @@ Button(master, text="Limpiar pantalla", width=15, command=limpiar, anchor=CENTER
     x=420, y=250
 )
 # -----------------------------------------------------------------------------------
-Button(master, text="Buscar todos", width=20, command=buscartodos, anchor=CENTER).place(
+Button(master, text="Analizar", width=20, command=analizar, anchor=CENTER).place(
     x=5, y=100
 )
+
+# seleccionado = master.StringVar()
+Checkbutton(master, text="Incluye tareas semanales").place(x=25, y=230)
+
+combo_fir = ttk.Combobox(
+    state="readonly", values=["fir_eze", "fir_cba", "fir_crv", "fir_sis", "fir_doz"]
+)
+combo_fir.place(x=160, y=105)
 
 w = Label(master, text="EXTRACTO CARPETAS")
 w.place(x=420, y=10)
@@ -123,14 +134,14 @@ else:
     w3 = Label(master, text="Database 1 Offline", foreground="red")
     w3.place(x=6, y=260)
 
-
+"""
 if mod_var.db_table_aep == True:
     w4 = Label(master, text="Database 2 Online", foreground="green")
     w4.place(x=150, y=260)
 else:
     w5 = Label(master, text="Database 2 Offline", foreground="red")
     w5.place(x=150, y=260)
-
+"""
 
 progressbar = ttk.Progressbar(length=600)
 # progressbar = ttk.Progressbar(root,variable=progress_var, maximun = MAX, length=600)

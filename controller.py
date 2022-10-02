@@ -238,10 +238,18 @@ def control_limpiar():
     vista.anio_input.delete(0, END)
 
 
-def control_analizar_los_sitios():
+def control_analizar_por_sitio():
 
     import modulo as mod
+    from vista import combo_fir
+
+    combo_seleccionado = combo_fir.get()
 
     """esta funcion busca un todo lo existente en las carpetas a analizar, y muestra en la pantalla cantidades y labels"""
-
-    mod.registro.analizar_por_sitio()
+    if combo_seleccionado != "":
+        mod.registro.analizar_por_sitio()
+    else:
+        showinfo(
+            "FIR no seleccionada",
+            "Seleccione la FIR a analizar",
+        )
