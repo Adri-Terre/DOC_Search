@@ -246,10 +246,19 @@ def control_analizar_por_sitio():
     combo_seleccionado = combo_fir.get()
 
     """esta funcion busca un todo lo existente en las carpetas a analizar, y muestra en la pantalla cantidades y labels"""
-    if combo_seleccionado != "":
-        mod.registro.analizar_por_sitio()
+
+    anio_seleccionado = vista.anio_input.get()
+
+    if anio_seleccionado != "":
+        if combo_seleccionado != "":
+            mod.registro.analizar_por_sitio()
+        else:
+            showinfo(
+                "FIR no seleccionada",
+                "Seleccione la FIR a analizar",
+            )
     else:
         showinfo(
-            "FIR no seleccionada",
-            "Seleccione la FIR a analizar",
+            "AÑO INGRESADO",
+            "Ingrese año del periodo a analizar",
         )

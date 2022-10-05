@@ -135,7 +135,7 @@ class Registros:  # (Patr_Obs):
         from module_base_de_datos import operacion_db_buscar
         from module_base_de_datos import operacion_db
         import module_variable as mod_var
-        from vista import combo_fir
+        from vista import combo_fir, mes_desde_input, mes_hasta_input
 
         global Str_system
         global informacion
@@ -164,7 +164,9 @@ class Registros:  # (Patr_Obs):
 
         files_mes = []
 
-        # sql = "SELECT *from fir_cba"
+        anio_desde = mes_desde_input.get()
+        anio_hasta = mes_hasta_input.get()
+
         fir_seleccionada = combo_fir.get()
         sql = "SELECT *from " + fir_seleccionada
         resultado = operacion_db_buscar(sql)
@@ -195,90 +197,7 @@ class Registros:  # (Patr_Obs):
             else:  # una vez cargado todo el mes, analiza la información
 
                 self.check_array()
-                """
-                a = 0
-                b = len(files_mes)
-                c = 0
 
-                if aux_system == "ILS":
-                    array_system = array_ils
-                    # self.funcion_ils(a, b, c)
-                elif aux_system == "VOR":
-                    array_system = array_vor
-                    # self.funcion_ils(a, b, c)
-                elif aux_system == "LI":
-                    array_system = array_li
-
-                l = 0
-
-                while a < b:
-                    # c = 0  # este
-
-                    for array_data in array_total:
-
-                        word = files_mes[a].find(array_data)
-                        if word != -1:
-
-                            # if l < len(array_system):
-                            try:
-                                if array_data == "VOR PARAMETROS II":
-                                    array_system.remove(array_data)
-                                    break
-                                else:
-                                    command = str(array_data)
-                                    array_system.remove(command)
-                                    break
-                            except:
-                                pass
-            
-        
-                    a += 1
-
-                Str_system = "-".join(array_system)
-                self.registrar_pendientes()
-                """
-
-        ######################33
-        """
-        a = 0
-        b = len(files_mes)
-        c = 0
-
-        if aux_system == "ILS":
-            array_system = array_ils
-            # self.funcion_ils(a, b, c)
-        elif aux_system == "VOR":
-            array_system = array_vor
-            # self.funcion_ils(a, b, c)
-        elif aux_system == "LI":
-            array_system = array_li
-
-        l = 0
-
-        while a < b:
-            # c = 0  # este
-
-            for array_data in array_total:
-
-                word = files_mes[a].find(array_data)
-                if word != -1:
-
-                    # if l < len(array_system):
-                    try:
-                        if array_data == "VOR PARAMETROS II":
-                            array_system.remove(array_data)
-                            break
-                        else:
-                            command = str(array_data)
-                            array_system.remove(command)
-                            break
-                    except:
-                        pass
-            a += 1
-
-        Str_system = "-".join(array_system)
-        self.registrar_pendientes()
-        """
         if informacion != "":
             self.check_array()
             # aca habria que llamar a exportar

@@ -49,13 +49,33 @@ def call_exportar():
 
 master = Tk()
 
-w1 = Label(master, text="INGRESE AÑO")
-w1.place(x=10, y=10)
+anio_frame = LabelFrame(master, text="Ingrese año", bd=2)
+anio_frame.place(x=10, y=5, width=200, height=60)
+# w1 = Label(master, text="Ingrese año")
+# w1.place(x=10, y=10)
 
 anio_input = Entry(master)
-anio_input.configure(width=20)
-anio_input.place(x=10, y=30)
+anio_input.configure(width=15)
+anio_input.place(x=30, y=30)
 anio_input.focus_set()
+
+periodo = LabelFrame(master, text="Período", bd=2)
+periodo.place(x=10, y=70, width=200, height=80)
+w4 = Label(master, text="Desde")
+w4.place(x=30, y=90)
+
+mes_desde_input = Entry(master)
+mes_desde_input.configure(width=10)
+mes_desde_input.place(x=30, y=110)
+mes_desde_input.focus_set()
+
+w5 = Label(master, text="Hasta")
+w5.place(x=120, y=90)
+
+mes_hasta_input = Entry(master)
+mes_hasta_input.configure(width=10)
+mes_hasta_input.place(x=120, y=110)
+mes_hasta_input.focus_set()
 
 
 """ cuadro de texto donde van a aparecer los datos de contacto """
@@ -79,16 +99,13 @@ filemenu.add_command(label="Exportar", command=call_exportar)
 # ---------Menu----------------------------
 Menu_x = Menu(menu)
 menu.add_cascade(label="Menu", menu=Menu_x)
-# Menu_x.add_command(label="Alta", command=alta)
-# Menu_x.add_separator()
-# Menu_x.add_command(label="Editar", command=editar)
+
 
 # ---------Acerca de-----------------------
 acerca_de = Menu(menu)
 menu.add_cascade(label="Acerca de", menu=acerca_de)
 acerca_de.add_command(label="Autor", command=autor)
-# acerca_de.add_separator()
-# acerca_de.add_command(label="Curso", command=curso)
+
 
 # --------------BOTON-----------------------------------------------------------------
 Button(
@@ -97,23 +114,28 @@ Button(
     width=22,
     command=insertar_documentacion,
     anchor=CENTER,
-).place(x=150, y=28)
+).place(x=220, y=28)
 # -----------------------------------------------------------------------------------
 Button(master, text="Limpiar pantalla", width=15, command=limpiar, anchor=CENTER).place(
     x=420, y=250
 )
 # -----------------------------------------------------------------------------------
-Button(master, text="Analizar", width=20, command=analizar, anchor=CENTER).place(
-    x=5, y=100
+
+
+fir_frame = LabelFrame(master, text="Fir", bd=2)
+fir_frame.place(x=10, y=160, width=200, height=80)
+
+Button(master, text="Analizar", width=22, command=analizar, anchor=CENTER).place(
+    x=220, y=175
 )
 
 # seleccionado = master.StringVar()
-Checkbutton(master, text="Incluye tareas semanales").place(x=25, y=230)
+Checkbutton(master, text="Incluye tareas semanales").place(x=25, y=210)
 
 combo_fir = ttk.Combobox(
     state="readonly", values=["fir_eze", "fir_cba", "fir_crv", "fir_sis", "fir_doz"]
 )
-combo_fir.place(x=160, y=105)
+combo_fir.place(x=40, y=180)
 
 w = Label(master, text="EXTRACTO CARPETAS")
 w.place(x=420, y=10)
