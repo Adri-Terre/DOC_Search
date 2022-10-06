@@ -49,16 +49,6 @@ def call_exportar():
 
 master = Tk()
 
-anio_frame = LabelFrame(master, text="Ingrese año", bd=2)
-anio_frame.place(x=10, y=5, width=200, height=60)
-# w1 = Label(master, text="Ingrese año")
-# w1.place(x=10, y=10)
-
-anio_input = Entry(master)
-anio_input.configure(width=15)
-anio_input.place(x=30, y=30)
-anio_input.focus_set()
-
 periodo = LabelFrame(master, text="Período", bd=2)
 periodo.place(x=10, y=70, width=200, height=80)
 w4 = Label(master, text="Desde")
@@ -77,6 +67,13 @@ mes_hasta_input.configure(width=10)
 mes_hasta_input.place(x=120, y=110)
 mes_hasta_input.focus_set()
 
+anio_frame = LabelFrame(master, text="Ingrese año", bd=2)
+anio_frame.place(x=10, y=5, width=200, height=60)
+
+anio_input = Entry(master)
+anio_input.configure(width=15)
+anio_input.place(x=30, y=30)
+anio_input.focus_set()
 
 """ cuadro de texto donde van a aparecer los datos de contacto """
 
@@ -135,7 +132,7 @@ Checkbutton(master, text="Incluye tareas semanales").place(x=25, y=210)
 combo_fir = ttk.Combobox(
     state="readonly", values=["fir_eze", "fir_cba", "fir_crv", "fir_sis", "fir_doz"]
 )
-combo_fir.place(x=40, y=180)
+combo_fir.place(x=30, y=180)
 
 w = Label(master, text="EXTRACTO CARPETAS")
 w.place(x=420, y=10)

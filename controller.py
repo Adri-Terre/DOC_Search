@@ -241,24 +241,26 @@ def control_limpiar():
 def control_analizar_por_sitio():
 
     import modulo as mod
-    from vista import combo_fir
+    from vista import combo_fir, mes_desde_input, mes_hasta_input
 
     combo_seleccionado = combo_fir.get()
 
     """esta funcion busca un todo lo existente en las carpetas a analizar, y muestra en la pantalla cantidades y labels"""
 
     anio_seleccionado = vista.anio_input.get()
+    periodo_desde = vista.mes_desde_input.get()
+    periodo_hasta = vista.mes_hasta_input.get()
 
     if anio_seleccionado != "":
-        if combo_seleccionado != "":
+        if combo_seleccionado != "" and periodo_desde != "" and periodo_hasta != "":
             mod.registro.analizar_por_sitio()
         else:
             showinfo(
-                "FIR no seleccionada",
-                "Seleccione la FIR a analizar",
+                "Campos incompletos",
+                "Complete todos los campos",
             )
     else:
         showinfo(
             "AÑO INGRESADO",
-            "Ingrese año del periodo a analizar",
+            "Ingrese año del periodo a analizar y seleccione la documentación",
         )

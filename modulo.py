@@ -148,6 +148,8 @@ class Registros:  # (Patr_Obs):
         global array_li
         global array_vor
         global array_total
+        global no_data_mes
+        global anio_desde
 
         informacion = ""
 
@@ -164,8 +166,8 @@ class Registros:  # (Patr_Obs):
 
         files_mes = []
 
-        anio_desde = mes_desde_input.get()
-        anio_hasta = mes_hasta_input.get()
+        anio_desde = int(mes_desde_input.get())
+        anio_hasta = int(mes_hasta_input.get())
 
         fir_seleccionada = combo_fir.get()
         sql = "SELECT *from " + fir_seleccionada
@@ -182,11 +184,26 @@ class Registros:  # (Patr_Obs):
             break
         for informacion in resultado:
             # aux_system = informacion[2]
+            # if informacion[2] != aux_system:
+            #    anio_desde = int(mes_desde_input.get())
+            #    aux_airport = informacion[1]
+            # if anio_desde>anio_hasta:
+            #    anio_desde = int(mes_desde_input.get())
 
             file_cadena = informacion[3]
             mes = file_cadena[5] + file_cadena[6]
             # word = file_cadena.find("LH")
             mes_array = int(mes)
+
+            ########### modificación 5-10-22
+            while anio_desde < mes_array:
+                aux_mes_anterior = anio_desde
+                anio_desde += 1
+                no_data_mes = True
+                self.check_array()
+                aux_mes_anterior = anio_desde
+            # else:
+            ######################################
 
             if (informacion[2] == aux_system) & ((aux_mes_anterior) == int(mes)):
                 files_mes.append(informacion[3])
@@ -241,7 +258,7 @@ class Registros:  # (Patr_Obs):
 
         while a < b:
             # c = 0  # este
-
+            # if files_mes != "":
             for array_data in array_total:
 
                 word = files_mes[a].find(array_data)
@@ -267,7 +284,7 @@ class Registros:  # (Patr_Obs):
     def registrar_pendientes(self):
 
         from module_base_de_datos import operacion_db
-        from vista import combo_fir
+        from vista import combo_fir, mes_desde_input
 
         global Str_system
         global informacion
@@ -279,6 +296,8 @@ class Registros:  # (Patr_Obs):
         global array_ils
         global array_li
         global array_vor
+        global no_data_mes
+        global anio_desde
 
         # Str_system = "-".join(array_system)
         fir_seleccionada = combo_fir.get()
@@ -300,10 +319,17 @@ class Registros:  # (Patr_Obs):
             operacion_db(sql, val)
 
         files_mes = []
-        files_mes.append(informacion[3])
-        aux_mes_anterior = int(mes)
-        aux_airport = informacion[1]
-        aux_system = informacion[2]
+        if no_data_mes == False:
+
+            if informacion[2] != aux_system:
+                anio_desde = int(mes_desde_input.get())
+
+            files_mes.append(informacion[3])
+            aux_mes_anterior = int(mes)
+            aux_airport = informacion[1]
+            aux_system = informacion[2]
+
+        no_data_mes = False
 
         array_ils = ["LH", "ILS PARAMETROS", "DME ILS PARAMETROS"]
         array_vor = [
@@ -313,6 +339,7 @@ class Registros:  # (Patr_Obs):
             "DME VOR PARAMETROS",
         ]
         array_li = ["LH", "LI PARAMETROS"]
+
         # array_ils = ["LH", "ILS PARAMETROS", "DME ILS PARAMETROS"]
         # array_vor = ["LH", "PARAMETROS", "PARAMETROS II", "DME VOR PARAMETROS"]
         # array_li = ["LH", "PARAMETROS"]
