@@ -47,9 +47,9 @@ def connection_db():
         mod_var.mycursor.execute(
             "CREATE TABLE fir_crv (ID INT AUTO_INCREMENT PRIMARY KEY, AIRPORT VARCHAR(255),SYSTEM VARCHAR(255),FILES VARCHAR(255), YEAR VARCHAR(255), FIR VARCHAR(255)"
         )
-        #mod_var.mycursor.execute(
+        # mod_var.mycursor.execute(
         #    "CREATE TABLE aep_table (ID INT AUTO_INCREMENT PRIMARY KEY, AIRPORT VARCHAR(255),FIR VARCHAR(255)"
-        #)
+        # )
         db_conectado = True
         # db_tabla_aep = True
         return db_conectado
@@ -85,7 +85,7 @@ def connection_db():
                 YEAR = CharField()
                 FIR = CharField()
 
-            #class aep_table(BaseModel):
+            # class aep_table(BaseModel):
 
             #    AIRPORT = CharField()
             #    FIR = CharField()
@@ -177,7 +177,7 @@ def connection_db():
 
             mibase.connect()
             mibase.create_tables([doc_airport])
-            #mibase.create_tables([aep_table])
+            # mibase.create_tables([aep_table])
             mibase.create_tables([fir_cba])
             mibase.create_tables([fir_sis])
             mibase.create_tables([fir_crv])

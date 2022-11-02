@@ -130,7 +130,7 @@ class Registros:  # (Patr_Obs):
 
     def analizar_por_sitio(self):
 
-        # Esta uncion se utiliza tanto para buscar todos los contactos en la agenda, como así también uno específico
+        # Esta funcion analiza por sitio la información existente.
         import re
         from module_base_de_datos import operacion_db_buscar
         from module_base_de_datos import operacion_db
@@ -150,7 +150,11 @@ class Registros:  # (Patr_Obs):
         global array_total
         global no_data_mes
         global anio_desde
+        global anio_hasta
+        global aux_mes_2
+        global periodo
 
+        # periodo = False
         informacion = ""
 
         array_ils = ["LH", "ILS PARAMETROS", "DME ILS PARAMETROS"]
@@ -183,6 +187,9 @@ class Registros:  # (Patr_Obs):
             aux_mes_anterior = int(mes_anterior)
             break
         for informacion in resultado:
+
+            # if periodo == True:
+            #    break
             # aux_system = informacion[2]
             # if informacion[2] != aux_system:
             #    anio_desde = int(mes_desde_input.get())
@@ -190,33 +197,70 @@ class Registros:  # (Patr_Obs):
             # if anio_desde>anio_hasta:
             #    anio_desde = int(mes_desde_input.get())
 
-            file_cadena = informacion[3]
-            mes = file_cadena[5] + file_cadena[6]
-            # word = file_cadena.find("LH")
-            mes_array = int(mes)
+            # if (aux_airport == informacion[1]) & (anio_desde <anio_hasta):
+            # self.check_array()
+            if aux_airport == informacion[1]:
+                aux_mes_2 = aux_mes_anterior
+                file_cadena = informacion[3]
+                mes = file_cadena[5] + file_cadena[6]
+                # word = file_cadena.find("LH")
+                mes_array = int(mes)
 
-            ########### modificación 5-10-22
-            while anio_desde < mes_array:
-                aux_mes_anterior = anio_desde
-                anio_desde += 1
-                no_data_mes = True
-                self.check_array()
-                aux_mes_anterior = anio_desde
-            # else:
-            ######################################
+                ########### modificación 5-10-22
+                while anio_desde < mes_array:  # or (mes_array < anio_hasta):
+                    aux_mes_anterior = anio_desde
+                    anio_desde += 1
+                    no_data_mes = True
+                    periodo = self.check_array()
+                    if periodo == True:
+                        break
+                    aux_mes_anterior = anio_desde
 
-            if (informacion[2] == aux_system) & ((aux_mes_anterior) == int(mes)):
-                files_mes.append(informacion[3])
-                # aux_airport = informacion[1]
-                # aux_system = informacion[2]
-                aux_mes_anterior = int(mes)
+                # else:
+                ######################################
+                # if (aux_airport != informacion[1]) & (anio_desde <= anio_hasta):
+                #    self.check_array()
 
-            else:  # una vez cargado todo el mes, analiza la información
+                if (
+                    (informacion[2] == aux_system)
+                    & ((aux_mes_anterior) == int(mes))
+                    & (periodo == False)
+                    & (aux_airport == informacion[1])
+                ):
+                    files_mes.append(informacion[3])
+                    # aux_airport = informacion[1]
+                    # aux_system = informacion[2]
+                    aux_mes_anterior = int(mes)
 
-                self.check_array()
+                else:  # una vez cargado todo el mes, analiza la información
+
+                    if periodo == False:
+                        periodo = self.check_array()
+                    else:
+                        periodo = False
+                        anio_desde = int(mes_desde_input.get())
+                    # break
+            else:
+
+                if aux_mes_anterior <= anio_hasta:
+                    # aux_mes_anterior += 1
+                    # anio_desde += 1
+                    no_data_mes = True
+                    periodo = self.check_array()
+                    aux_mes_anterior += 1
+                    if periodo == False:
+                        periodo = self.check_array()
+                    else:
+                        periodo = False
+                        anio_desde = int(mes_desde_input.get())
+                    # if periodo == True:
+                    #    break
+                    # aux_mes_anterior = anio_desde
 
         if informacion != "":
-            self.check_array()
+
+            if periodo == False:
+                self.check_array()
             # aca habria que llamar a exportar
             showinfo("EXPORTAR FIR", "Operación exitosa")
             aux_system = ""
@@ -227,20 +271,26 @@ class Registros:  # (Patr_Obs):
 
     def check_array(self):
 
+        from vista import mes_desde_input
+
         global Str_system
         # global informacion
         # global mes
         global files_mes
         global aux_system
-        # global aux_mes_anterior
-        # global aux_airport
+        global aux_mes_anterior
+        global aux_airport
 
         global aux_system
         global array_ils
         global array_li
         global array_vor
         global array_total
+        global anio_hasta, anio_desde
+        global aux_mes_2
+        global periodo
 
+        periodo_ok = False
         a = 0
         b = len(files_mes)
         c = 0
@@ -280,6 +330,15 @@ class Registros:  # (Patr_Obs):
 
         Str_system = "-".join(array_system)
         self.registrar_pendientes()
+        # if aux_mes_anterior == anio_hasta:
+        if aux_mes_anterior == anio_hasta:
+            periodo_ok = False
+            aux_airport = informacion[1]
+            # files_mes.append(informacion[3])
+            anio_desde = int(mes_desde_input.get())
+            aux_mes_anterior = anio_desde
+            # periodo = False
+        return periodo_ok
 
     def registrar_pendientes(self):
 
@@ -325,8 +384,8 @@ class Registros:  # (Patr_Obs):
                 anio_desde = int(mes_desde_input.get())
 
             files_mes.append(informacion[3])
-            aux_mes_anterior = int(mes)
-            aux_airport = informacion[1]
+            # aux_mes_anterior = int(mes)
+            # aux_airport = informacion[1]
             aux_system = informacion[2]
 
         no_data_mes = False
