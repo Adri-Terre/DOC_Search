@@ -8,6 +8,8 @@ import module_variable as mod_var
 import controller
 from tkinter import ttk  # para la barra de progreso
 
+global w9, w10, w11, w13
+
 
 def autor():
 
@@ -16,10 +18,7 @@ def autor():
     win = Toplevel()
     win.title("Autor")
     win.geometry("300x100")
-    label_autor = Label(
-        win,
-        text="ING. TERRENI ADRIAN HORACIO\n",
-    )
+    label_autor = Label(win, text="ING. TERRENI ADRIAN HORACIO\n\nv1.0 - AÑO: 2022")
 
     label_autor.place(x=60, y=20)
 
@@ -38,11 +37,19 @@ def limpiar():
     controller.control_limpiar()
 
 
-def call_exportar():
+def call_exportar_1():
 
     """esta funcion, a traves del controller, exporta los datos de la agenda en .pdf, .csv, xml, json"""
 
-    controller.control_exportar()
+    controller.control_exportar("doc_airport")
+
+
+def call_exportar_2():
+
+    """esta funcion, a traves del controller, exporta los datos de la agenda en .pdf, .csv, xml, json"""
+    combo_seleccionado = combo_fir.get()
+    combo_seleccionado = combo_seleccionado + "_pendientes"
+    controller.control_exportar(combo_seleccionado)
 
 
 # ----------------------------SECCIÓN GRÁFICA DE LA AGENDA------------------------
@@ -75,10 +82,10 @@ anio_input.configure(width=15)
 anio_input.place(x=30, y=30)
 anio_input.focus_set()
 
-""" cuadro de texto donde van a aparecer los datos de contacto """
+# """ cuadro de texto donde van a aparecer los datos de contacto """
 
-datos_carpetas = Text(master)
-datos_carpetas.place(x=380, y=40, width=200, height=200)
+# datos_carpetas = Text(master)
+# datos_carpetas.place(x=380, y=40, width=200, height=200)
 
 """ Aquí se crea la pantalla principal """
 
@@ -89,9 +96,9 @@ master.config(menu=menu)
 filemenu = Menu(menu)
 # --------Archivo--------------------------
 menu.add_cascade(label="Archivo", menu=filemenu)
-filemenu.add_command(label="Exportar", command=call_exportar)
-# filemenu.add_separator()
-# filemenu.add_command(label="Cerrar", command=master.quit)
+filemenu.add_command(label="Exportar existentes", command=call_exportar_1)
+filemenu.add_separator()
+filemenu.add_command(label="Exportar pendientes", command=call_exportar_2)
 
 # ---------Menu----------------------------
 Menu_x = Menu(menu)
@@ -113,7 +120,7 @@ Button(
     anchor=CENTER,
 ).place(x=220, y=28)
 # -----------------------------------------------------------------------------------
-Button(master, text="Limpiar pantalla", width=15, command=limpiar, anchor=CENTER).place(
+Button(master, text="Reset", width=15, command=limpiar, anchor=CENTER).place(
     x=420, y=250
 )
 # -----------------------------------------------------------------------------------
@@ -126,7 +133,6 @@ Button(master, text="Analizar", width=22, command=analizar, anchor=CENTER).place
     x=220, y=175
 )
 
-# seleccionado = master.StringVar()
 Checkbutton(master, text="Incluye tareas semanales").place(x=25, y=210)
 
 combo_fir = ttk.Combobox(
@@ -134,12 +140,6 @@ combo_fir = ttk.Combobox(
 )
 combo_fir.place(x=30, y=180)
 
-w = Label(master, text="EXTRACTO CARPETAS")
-w.place(x=420, y=10)
-
-# label conexion base de datos
-
-# a = controller.control_cargar_sitios()
 db_conectado = connection_db()
 
 if mod_var.db_table_aep == False:
@@ -147,23 +147,38 @@ if mod_var.db_table_aep == False:
 
 
 if db_conectado == True:
-    w2 = Label(master, text="Database 1 Online", foreground="green")
+    w2 = Label(master, text="Database Online", foreground="blue")
     w2.place(x=6, y=260)
 else:
-    w3 = Label(master, text="Database 1 Offline", foreground="red")
+    w3 = Label(master, text="Database Offline", foreground="red")
     w3.place(x=6, y=260)
-
-"""
-if mod_var.db_table_aep == True:
-    w4 = Label(master, text="Database 2 Online", foreground="green")
-    w4.place(x=150, y=260)
-else:
-    w5 = Label(master, text="Database 2 Offline", foreground="red")
-    w5.place(x=150, y=260)
-"""
 
 progressbar = ttk.Progressbar(length=600)
 # progressbar = ttk.Progressbar(root,variable=progress_var, maximun = MAX, length=600)
 progressbar.place(x=9, y=280, height=15)
+
+w6 = Label(master, text="Files Downloaded: ", foreground="black")
+w6.place(x=400, y=30)
+
+w7 = Label(master, text="Files splitted: ", foreground="black")
+w7.place(x=400, y=60)
+
+w8 = Label(master, text="Files checked: ", foreground="black")
+w8.place(x=400, y=90)
+
+w9 = Label(master, text="-", foreground="red")
+w9.place(x=530, y=30)
+
+w10 = Label(master, text="-", foreground="red")
+w10.place(x=530, y=60)
+
+w11 = Label(master, text="-", foreground="red")
+w11.place(x=530, y=90)
+
+w12 = Label(master, text="Report Created: ", foreground="black")
+w12.place(x=400, y=120)
+
+w13 = Label(master, text="-", foreground="red")
+w13.place(x=530, y=120)
 
 master.mainloop()

@@ -12,6 +12,11 @@ def control_buscardocumentacion(ruta="."):
     import modulo as mod
     import module_variable as mod_var
 
+    # from vista import w9, w10
+
+    # global w10
+    # global w12
+
     dir, subdirs, archivos = next(walk(ruta))
 
     anio_seleccionado = vista.anio_input.get()
@@ -29,9 +34,6 @@ def control_buscardocumentacion(ruta="."):
 
             if os.path.exists(carpeta):
                 dir, subdirs, archivos = next(walk(carpeta))
-
-                vista.datos_carpetas.insert(INSERT, carpeta_sitio)
-                vista.datos_carpetas.insert(INSERT, " ")
 
                 if carpeta != "":
 
@@ -53,9 +55,7 @@ def control_buscardocumentacion(ruta="."):
                         dir, subdirs, archivos = next(walk(carpeta2))
                         # print("Actual: ", dir)
                         print(subcarpeta)
-                        # vista.datos_carpetas.text = subcarpeta
-                        vista.datos_carpetas.insert(INSERT, subcarpeta)
-                        vista.datos_carpetas.insert(INSERT, " ")
+
                         print("Archivos: ", archivos)
                         archivos_aux = archivos
                         dir, subdirs, archivos = next(walk(carpeta))
@@ -80,16 +80,23 @@ def control_buscardocumentacion(ruta="."):
                     # root.update_idletasks()
                     # vista.progressbar.step(i)
                 dir, subdirs, archivos = next(walk(folder_selected))
-                vista.datos_carpetas.insert(INSERT, "Files OK\n")
+
+                vista.w9.destroy()
+                vista.w9 = Label(vista.master, text="OK", foreground="green")
+                vista.w9.place(x=530, y=30)
+
                 y = y + 1
 
             else:
-                vista.datos_carpetas.insert(INSERT, carpeta_sitio + " ")
-                vista.datos_carpetas.insert(INSERT, "No Files\n")
 
+                pass
         vista.progressbar.step(50)
 
         mod.registro.separar_por_sitio()  # aca llama a la funcion que separa la documentación por region
+
+        vista.w10.destroy()
+        vista.w10 = Label(vista.master, text="OK", foreground="green")
+        vista.w10.place(x=530, y=60)
 
         vista.progressbar.step(99)
 
@@ -225,17 +232,44 @@ def control_cargar_sitios():
     # mod.registro.cargar_sitios(aeropuertos, regionales)
 
 
-def control_exportar():
+def control_exportar(doc_airport):
 
     """esta funcion se emplea para exportar la agenda en formatos csv, pdf, json, xml"""
     import modulo as mod
 
-    mod.exportar()
+    mod.exportar(doc_airport)
 
 
 def control_limpiar():
-    vista.datos_carpetas.delete(1.0, END)
+
+    from module_base_de_datos import eliminar_tabla_fir
+
+    vista.mes_desde_input.delete(0, END)
+    vista.mes_hasta_input.delete(0, END)
     vista.anio_input.delete(0, END)
+    vista.combo_fir.delete(0, END)
+
+    text_w10 = vista.w10.cget("text")
+    text_w11 = vista.w11.cget("text")
+    text_w13 = vista.w13.cget("text")
+
+    if text_w10 == "OK":
+        vista.w10.destroy()
+        vista.w10 = Label(vista.master, text="-", foreground="red")
+        vista.w10.place(x=530, y=60)
+
+    if text_w11 == "OK":
+        vista.w11.destroy()
+        vista.w11 = Label(vista.master, text="-", foreground="red")
+        vista.w11.place(x=530, y=90)
+
+    if text_w13 == "OK":
+
+        vista.w13.destroy()
+        vista.w13 = Label(vista.master, text="-", foreground="red")
+        vista.w13.place(x=530, y=90)
+
+    eliminar_tabla_fir()
 
 
 def control_analizar_por_sitio():

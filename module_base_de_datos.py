@@ -222,3 +222,23 @@ def operacion_db_buscar(sql):
     resultado = mod_var.mycursor.fetchall()
 
     return resultado
+
+
+def eliminar_tabla_fir():
+
+    my_db = mysql.connector.connect(
+        host="localhost", user="root", password="", database="doc_search"
+    )
+    mycursor = my_db.cursor()
+    # sql = "TRUNCATE TABLE IF EXISTS FIR_EZE_PENDIENTES"
+
+    sql = "TRUNCATE TABLE FIR_EZE_PENDIENTES"
+    mycursor.execute(sql)
+    sql = "TRUNCATE TABLE FIR_CBA_PENDIENTES"
+    mycursor.execute(sql)
+    sql = "TRUNCATE TABLE FIR_SIS_PENDIENTES"
+    mycursor.execute(sql)
+    sql = "TRUNCATE TABLE FIR_CRV_PENDIENTES"
+    mycursor.execute(sql)
+    sql = "TRUNCATE TABLE FIR_DOZ_PENDIENTES"
+    mycursor.execute(sql)

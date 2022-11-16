@@ -1,16 +1,20 @@
 from tkinter import *
-import sys
+
+# import sys
 from module_base_de_datos import connection_db
 import itertools
 import csv
 from tkinter.filedialog import askopenfilename
 from tkinter.messagebox import *
+import vista
 
-# from PIL import ImageTk, Image
-# import base64
+from PIL import ImageTk, Image
+import base64
 from fpdf import FPDF
 
 import os
+
+# global w11
 
 
 class Doc_input:
@@ -36,14 +40,13 @@ class Registros:  # (Patr_Obs):
         from module_base_de_datos import operacion_db
 
         # ------------AQUI CARGA LA BASE DE DATOS----------------
-        # if askyesno("Consulta", "¿Desea dar de alta el contacto?"):
+
         a = len(files)
         n = 0
         while n < a:
             sql = "INSERT INTO doc_airport (AIRPORT,SYSTEM,FILES,YEAR, FIR)VALUES(%s,%s,%s,%s,%s)"
             val = [airport, system, files[n], year, fir]
             operacion_db(sql, val)
-            # showinfo("OK", "Operación exitosa")
             doc_input = Doc_input(airport, system, files, year, fir)
             self.doc_search.append(doc_input)
             n += 1
@@ -130,15 +133,16 @@ class Registros:  # (Patr_Obs):
 
     def analizar_por_sitio(self):
 
-        # Esta funcion analiza por sitio la información existente.
+        # Esta funcion analiza por fir seleccionada la información existente.
         import re
         from module_base_de_datos import operacion_db_buscar
         from module_base_de_datos import operacion_db
         import module_variable as mod_var
-        from vista import combo_fir, mes_desde_input, mes_hasta_input
+        from vista import combo_fir, mes_desde_input, mes_hasta_input, w11
 
         global Str_system
         global informacion
+        # global informacion_aux
         global mes
         global files_mes
         global aux_mes_anterior
@@ -152,10 +156,15 @@ class Registros:  # (Patr_Obs):
         global anio_desde
         global anio_hasta
         global aux_mes_2
-        global periodo
+        global periodo  # antes periodo
+        global check_mes_hasta, check_mes_desde
+        # global w11
 
-        # periodo = False
+        check_mes_hasta = False
+        check_mes_desde = False
+        periodo = False
         informacion = ""
+        # informacion_aux = ""
 
         array_ils = ["LH", "ILS PARAMETROS", "DME ILS PARAMETROS"]
         array_vor = [
@@ -177,7 +186,6 @@ class Registros:  # (Patr_Obs):
         sql = "SELECT *from " + fir_seleccionada
         resultado = operacion_db_buscar(sql)
 
-        # mes_check = 1
         mes_anterior = 0
         for sistema in resultado:
             aux_airport = sistema[1]
@@ -188,24 +196,39 @@ class Registros:  # (Patr_Obs):
             break
         for informacion in resultado:
 
-            # if periodo == True:
-            #    break
-            # aux_system = informacion[2]
-            # if informacion[2] != aux_system:
-            #    anio_desde = int(mes_desde_input.get())
-            #    aux_airport = informacion[1]
-            # if anio_desde>anio_hasta:
-            #    anio_desde = int(mes_desde_input.get())
+            if (aux_airport != informacion[1]) & (check_mes_hasta == True):
 
-            # if (aux_airport == informacion[1]) & (anio_desde <anio_hasta):
-            # self.check_array()
-            if aux_airport == informacion[1]:
+                aux_airport = informacion[1]
+                check_mes_hasta = False
+                aux_system = informacion[2]
+                check_mes_desde = False
+
+            elif (aux_system != informacion[2]) & (check_mes_hasta == True):
+
+                check_mes_hasta = False
+                aux_system = informacion[2]
+                check_mes_desde = False
+
+            elif (aux_airport == informacion[1]) & (check_mes_hasta == True):
+
+                check_mes_hasta = False
+                check_mes_desde = False
+                periodo = False
+
+            if (
+                (aux_airport == informacion[1])
+                & (check_mes_hasta == False)
+                & (aux_system == informacion[2])
+            ):
+
                 aux_mes_2 = aux_mes_anterior
                 file_cadena = informacion[3]
                 mes = file_cadena[5] + file_cadena[6]
                 # word = file_cadena.find("LH")
                 mes_array = int(mes)
 
+                if mes_array >= anio_desde:
+                    check_mes_desde = True
                 ########### modificación 5-10-22
                 while anio_desde < mes_array:  # or (mes_array < anio_hasta):
                     aux_mes_anterior = anio_desde
@@ -213,13 +236,9 @@ class Registros:  # (Patr_Obs):
                     no_data_mes = True
                     periodo = self.check_array()
                     if periodo == True:
+                        periodo = False
                         break
                     aux_mes_anterior = anio_desde
-
-                # else:
-                ######################################
-                # if (aux_airport != informacion[1]) & (anio_desde <= anio_hasta):
-                #    self.check_array()
 
                 if (
                     (informacion[2] == aux_system)
@@ -227,24 +246,40 @@ class Registros:  # (Patr_Obs):
                     & (periodo == False)
                     & (aux_airport == informacion[1])
                 ):
+                    # aca
+                    """
+                    if informacion_aux != "":
+                        if (
+                            (informacion_aux[2] == aux_system)
+                            & ((aux_mes_anterior) == int(mes))
+                            & (periodo == False)
+                            & (aux_airport == informacion_aux[1])
+                        ):
+
+                            files_mes.append(informacion_aux[3])
+                            informacion_aux = ""
+                    """
                     files_mes.append(informacion[3])
-                    # aux_airport = informacion[1]
-                    # aux_system = informacion[2]
+
                     aux_mes_anterior = int(mes)
 
                 else:  # una vez cargado todo el mes, analiza la información
 
-                    if periodo == False:
+                    if (
+                        (periodo == False)
+                        & (check_mes_hasta == False)
+                        & (check_mes_desde == True)
+                    ):  #####################
                         periodo = self.check_array()
+                        check_mes_desde = False
                     else:
                         periodo = False
                         anio_desde = int(mes_desde_input.get())
                     # break
             else:
 
-                if aux_mes_anterior <= anio_hasta:
-                    # aux_mes_anterior += 1
-                    # anio_desde += 1
+                if (aux_mes_anterior <= anio_hasta) & (check_mes_hasta == False):
+
                     no_data_mes = True
                     periodo = self.check_array()
                     aux_mes_anterior += 1
@@ -253,15 +288,16 @@ class Registros:  # (Patr_Obs):
                     else:
                         periodo = False
                         anio_desde = int(mes_desde_input.get())
-                    # if periodo == True:
-                    #    break
-                    # aux_mes_anterior = anio_desde
 
         if informacion != "":
 
-            if periodo == False:
+            if (periodo == False) & (check_mes_hasta == False):
                 self.check_array()
-            # aca habria que llamar a exportar
+
+            vista.w11.destroy()
+            vista.w11 = Label(vista.master, text="OK", foreground="green")
+            vista.w11.place(x=530, y=90)
+
             showinfo("EXPORTAR FIR", "Operación exitosa")
             aux_system = ""
             array_system = ""
@@ -271,11 +307,10 @@ class Registros:  # (Patr_Obs):
 
     def check_array(self):
 
+        # esta función compara los documentos con analizados con los arrays preestablecidos
         from vista import mes_desde_input
 
         global Str_system
-        # global informacion
-        # global mes
         global files_mes
         global aux_system
         global aux_mes_anterior
@@ -288,7 +323,10 @@ class Registros:  # (Patr_Obs):
         global array_total
         global anio_hasta, anio_desde
         global aux_mes_2
-        global periodo
+        global periodo  # antes periodo
+        global check_mes_hasta
+        global check_mes_desde
+        # global informacion_aux
 
         periodo_ok = False
         a = 0
@@ -297,24 +335,22 @@ class Registros:  # (Patr_Obs):
 
         if aux_system == "ILS":
             array_system = array_ils
-            # self.funcion_ils(a, b, c)
+
         elif aux_system == "VOR":
             array_system = array_vor
-            # self.funcion_ils(a, b, c)
+
         elif aux_system == "LI":
             array_system = array_li
 
         l = 0
 
         while a < b:
-            # c = 0  # este
-            # if files_mes != "":
+
             for array_data in array_total:
 
                 word = files_mes[a].find(array_data)
                 if word != -1:
 
-                    # if l < len(array_system):
                     try:
                         if array_data == "VOR PARAMETROS II":
                             array_system.remove(array_data)
@@ -330,15 +366,17 @@ class Registros:  # (Patr_Obs):
 
         Str_system = "-".join(array_system)
         self.registrar_pendientes()
-        # if aux_mes_anterior == anio_hasta:
+
         if aux_mes_anterior == anio_hasta:
-            periodo_ok = False
+            periodo = True  # False
             aux_airport = informacion[1]
-            # files_mes.append(informacion[3])
             anio_desde = int(mes_desde_input.get())
             aux_mes_anterior = anio_desde
+            check_mes_hasta = True
+            check_mes_desde = False
+            # informacion_aux = informacion
             # periodo = False
-        return periodo_ok
+        return periodo
 
     def registrar_pendientes(self):
 
@@ -399,20 +437,13 @@ class Registros:  # (Patr_Obs):
         ]
         array_li = ["LH", "LI PARAMETROS"]
 
-        # array_ils = ["LH", "ILS PARAMETROS", "DME ILS PARAMETROS"]
-        # array_vor = ["LH", "PARAMETROS", "PARAMETROS II", "DME VOR PARAMETROS"]
-        # array_li = ["LH", "PARAMETROS"]
-
-        # showinfo("EXPORTAR FIR", "Operación exitosa")
-
 
 registro = Registros()
-# observador_a = ConcreteObserverA(agenda)
 
-
+"""
 def limpiar():
 
-    """funcion que limpia los campos en la pantalla principal"""
+#funcion que limpia los campos en la pantalla principal
 
     from_controller_limpiar = True
 
@@ -421,14 +452,16 @@ def limpiar():
 
 def clear_window():
 
-    """esta funcion limpia la pantalla del menú editar"""
+    #esta funcion limpia la pantalla del menú editar
 
     from_controller_limpiar_editar = True
 
     return from_controller_limpiar_editar
 
+"""
 
-def foto_perfil_alta():
+
+def logo_encode():
 
     """Esta funcion carga y asocia una foto de perfil con el nuevo contacto. Se emplea "base64" para codificar la imagen"""
 
@@ -443,14 +476,14 @@ def foto_perfil_alta():
     mod_var.image_64_encode = base64.encodebytes(image_read)
 
 
-def foto_perfil_decode():
+def logo_decode():
 
     """Esta funcion decodifica una foto de perfil previamente codificada en "base64" asociada al contacto buscado"""
 
     import module_variable as mod_var
 
     global w8
-    global w9
+    # global w9
 
     image_64_decode = base64.decodebytes(mod_var.image_64_encode)
     image_result = open("foto_perfil.jpg", "wb")
@@ -472,59 +505,137 @@ def foto_perfil_decode():
     mod_var.render = ImageTk.PhotoImage(load)
 
 
-def exportar():
+def exportar(file_export):
 
     """esta funcion exporta los datos de la agenda en .pdf .csv .xml y .json"""
-
+    global w12, w13
     from module_base_de_datos import operacion_db_buscar
-    import xml.etree.ElementTree as ET
+    import module_variable as mod_var
+
+    #   import xml.etree.ElementTree as ET
+    from datetime import date
+
+    fecha_actual = date.today()
+
+    titulo = False
 
     global datosstr
     datosstr = ""
 
     resultado = ""
+    table_name = file_export
 
-    if os.path.exists("Archivo-CSV.csv"):
-        os.remove("Archivo-CSV.csv")
+    if table_name != "_pendientes":
+        if table_name == "doc_airport":
+            # str(fecha_actual) +
+            nombre_tabla_completa = str(fecha_actual) + " Registros_completos.csv"
+            nombre_tabla_completa = nombre_tabla_completa.upper()
+            if os.path.exists(nombre_tabla_completa):
+                os.remove(nombre_tabla_completa)
+            fichero = open(nombre_tabla_completa, "w")
 
-    fichero = open("Archivo-CSV.csv", "w")
-    escribir = csv.writer(fichero)
-    escribir.writerow(("ID", "airport", "system", "files", "year", "fir"))
+        else:
 
-    sql = "SELECT *FROM doc_airport"
-    resultado = operacion_db_buscar(sql)
-    y = 0
+            if os.path.exists(str(fecha_actual) + " " + table_name.upper() + ".csv"):
+                os.remove(str(fecha_actual) + " " + table_name.upper() + ".csv")
+            fichero = open(str(fecha_actual) + " " + table_name.upper() + ".csv", "w")
+        # else:
+        # fichero = open(table_name + ".csv", "w")
 
-    a = len(resultado)
-    if a != 0:
+        escribir = csv.writer(fichero)
 
-        for x in resultado:
-            res = resultado[y]
+        if table_name == "doc_airport":
+            escribir.writerow(
+                ("REPORTE NAV: REGISTROS EXISTENTES\t\t-\t\tFECHA", fecha_actual)
+            )
+
+        else:
             escribir.writerow(
                 (
-                    res[0],
-                    res[1],
-                    res[2],
-                    res[3],
-                    res[4],
-                    res[5],
+                    "REPORTE NAV: " + str(table_name).upper() + "\t\t-\t\tFECHA",
+                    fecha_actual,
                 )
             )
 
-            y = y + 1
+        escribir.writerow(
+            ("Id", " Aeropuerto", " Sistema", " Mes", " Archivos", " Año")
+        )
 
-        fichero.flush()
-        fichero.close()
-        pdf = FPDF()
-        pdf.add_page()
-        pdf.set_font("Arial", size=9)
-        archivo = open("Archivo-CSV.csv", "r")
+        sql = "SELECT *FROM " + table_name
 
-        for z in archivo:
-            pdf.cell(250, 5, txt=z, ln=1, align="c")
-        pdf.output("Archivo-PDF.pdf")
+        resultado = operacion_db_buscar(sql)
+        y = 0
 
-        showinfo("Exportar", "Archivos exportados en CSV, PDF")  # , XML Y JSON")
+        a = len(resultado)
+        if a != 0:
 
+            for x in resultado:
+                res = resultado[y]
+                escribir.writerow(
+                    (
+                        res[0],
+                        res[1],
+                        res[2],
+                        res[3],
+                        res[4],
+                        res[5],
+                    )
+                )
+
+                y = y + 1
+
+            fichero.flush()
+            fichero.close()
+
+            try:
+                pdf = FPDF()
+                pdf.add_page()
+                # pdf.set_font("Arial", size=15)
+                pdf.set_font("Helvetica", "BU")
+                # Image(string file [, float x [, float y [, float w [, float h [, string type [, mixed link]]]]]])
+
+                pdf.image("logo.png", 145, -4, 52)
+
+                if table_name == "doc_airport":
+                    archivo = open(nombre_tabla_completa, "r")
+
+                else:
+                    archivo = open(
+                        str(fecha_actual) + " " + table_name.upper() + ".csv", "r"
+                    )
+
+                # archivo = open("Archivo-CSV.csv", "r")
+
+                for z in archivo:
+                    pdf.cell(250, 4, txt=z, ln=1, align="L")
+
+                    pdf.set_font("Helvetica", size=10)
+                    """
+                    if titulo == False:
+                        pdf.set_font("Arial", size=20)
+                        titulo = True
+                    else:
+                        pdf.set_font("Arial", size=10)
+                    """
+                if table_name == "doc_airport":
+                    nombre_tabla_completa_pdf = (
+                        str(fecha_actual) + " Registros_completos.pdf"
+                    )
+                    nombre_tabla_completa_pdf = nombre_tabla_completa_pdf.upper()
+                    pdf.output(nombre_tabla_completa_pdf)
+                else:
+                    pdf.output(str(fecha_actual) + " " + table_name.upper() + ".pdf")
+
+                vista.w13 = Label(vista.master, text="OK", foreground="green")
+                vista.w13.place(x=530, y=120)
+
+                if table_name == "doc_airport":
+                    table_name = "Registros completos"
+                table_name = table_name.upper()
+                showinfo("Message", table_name + " -> Archivos exportados en CSV y PDF")
+            except IOError:
+                showinfo("Message Error", "Archivo no creado")
+        else:
+            showinfo("Message", "No hay registros en la base de datos")
     else:
-        showinfo("Exportar", "No hay registros en la base de datos")
+        showinfo("Message", "No hay registros en la base de datos")

@@ -27,7 +27,7 @@ db_conectado = False
 # buscartodos_boton = True
 # contacto_search = []
 # contacto_encontrado = []
-# image_64_encode = ""
+image_64_encode = ""
 # var1 = False
 # var2 = False
 global db_table_aep
