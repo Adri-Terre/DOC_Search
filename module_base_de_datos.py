@@ -1,9 +1,7 @@
 from peewee import *
 import mysql.connector
 from tkinter.filedialog import askopenfilename
-from tkinter import Label
 from tkinter.messagebox import *
-
 import module_variable as mod_var
 
 
@@ -220,6 +218,7 @@ def operacion_db_buscar(sql):
     mod_var.mycursor = my_db.cursor()
     mod_var.mycursor.execute(sql)
     resultado = mod_var.mycursor.fetchall()
+    my_db.commit()
 
     return resultado
 
@@ -242,3 +241,5 @@ def eliminar_tabla_fir():
     mycursor.execute(sql)
     sql = "TRUNCATE TABLE FIR_DOZ_PENDIENTES"
     mycursor.execute(sql)
+    a = True
+    return a

@@ -1,6 +1,6 @@
 from tkinter import *
 
-# import sys
+import sys
 from module_base_de_datos import connection_db
 import itertools
 import csv
@@ -8,13 +8,12 @@ from tkinter.filedialog import askopenfilename
 from tkinter.messagebox import *
 import vista
 
-from PIL import ImageTk, Image
-import base64
+# from PIL import ImageTk, Image
+# import base64
 from fpdf import FPDF
 
 import os
-
-# global w11
+import logging
 
 
 class Doc_input:
@@ -120,7 +119,7 @@ class Registros:  # (Patr_Obs):
                 ]
                 operacion_db(sql, val)
 
-            elif informacion[n] == "DOZ":
+            elif informacion[5] == "DOZ":
                 sql = "INSERT INTO fir_doz(AIRPORT,SYSTEM,FILES,YEAR, FIR)VALUES(%s,%s,%s,%s,%s)"
                 val = [
                     informacion[1],
@@ -158,8 +157,11 @@ class Registros:  # (Patr_Obs):
         global aux_mes_2
         global periodo  # antes periodo
         global check_mes_hasta, check_mes_desde
-        # global w11
 
+        global array_rechazados
+        # global w11
+        no_data_mes = False
+        array_rechazados = []
         check_mes_hasta = False
         check_mes_desde = False
         periodo = False
@@ -208,13 +210,13 @@ class Registros:  # (Patr_Obs):
                 check_mes_hasta = False
                 aux_system = informacion[2]
                 check_mes_desde = False
-
+            """
             elif (aux_airport == informacion[1]) & (check_mes_hasta == True):
 
                 check_mes_hasta = False
                 check_mes_desde = False
                 periodo = False
-
+            """
             if (
                 (aux_airport == informacion[1])
                 & (check_mes_hasta == False)
@@ -298,12 +300,17 @@ class Registros:  # (Patr_Obs):
             vista.w11 = Label(vista.master, text="OK", foreground="green")
             vista.w11.place(x=530, y=90)
 
-            showinfo("EXPORTAR FIR", "Operación exitosa")
+            showinfo("MENSAJE", "Operación exitosa")
             aux_system = ""
             array_system = ""
             informacion = []
+
+            if array_rechazados != "":
+                log_rechazado(array_rechazados)
+                array_rechazados = []
+                showinfo("MENSAJE", "Se ha generado un log con archivos rechazados")
         else:
-            showinfo("EXPORTAR FIR", "No hay información disponible")
+            showinfo("MENSAJE", "No hay información disponible")
 
     def check_array(self):
 
@@ -326,7 +333,11 @@ class Registros:  # (Patr_Obs):
         global periodo  # antes periodo
         global check_mes_hasta
         global check_mes_desde
+
+        global array_rechazados
         # global informacion_aux
+
+        # array_rechazados = []
 
         periodo_ok = False
         a = 0
@@ -343,7 +354,7 @@ class Registros:  # (Patr_Obs):
             array_system = array_li
 
         l = 0
-
+        rechazado = False
         while a < b:
 
             for array_data in array_total:
@@ -354,18 +365,27 @@ class Registros:  # (Patr_Obs):
                     try:
                         if array_data == "VOR PARAMETROS II":
                             array_system.remove(array_data)
+                            rechazado = True
                             break
                         else:
                             command = str(array_data)
                             array_system.remove(command)
+                            rechazado = True
                             break
                     except:
                         pass
 
-            a += 1
+            if rechazado == False:
+                array_rechazados.append(files_mes[a])
 
-        Str_system = "-".join(array_system)
-        self.registrar_pendientes()
+            a += 1
+        try:
+            Str_system = "-".join(array_system)
+            self.registrar_pendientes()
+        except:
+            print(aux_system + " no esta en la lista")
+        
+        
 
         if aux_mes_anterior == anio_hasta:
             periodo = True  # False
@@ -439,70 +459,6 @@ class Registros:  # (Patr_Obs):
 
 
 registro = Registros()
-
-"""
-def limpiar():
-
-#funcion que limpia los campos en la pantalla principal
-
-    from_controller_limpiar = True
-
-    return from_controller_limpiar
-
-
-def clear_window():
-
-    #esta funcion limpia la pantalla del menú editar
-
-    from_controller_limpiar_editar = True
-
-    return from_controller_limpiar_editar
-
-"""
-
-
-def logo_encode():
-
-    """Esta funcion carga y asocia una foto de perfil con el nuevo contacto. Se emplea "base64" para codificar la imagen"""
-
-    import module_variable as mod_var
-
-    file_path = (
-        askopenfilename()
-    )  # aqui se abre el explorador de archivos para seleccionar una imagen y guarda la seleccion en la variable """
-
-    image = open(file_path, "rb")  # abre el archivo en modo lectura
-    image_read = image.read()
-    mod_var.image_64_encode = base64.encodebytes(image_read)
-
-
-def logo_decode():
-
-    """Esta funcion decodifica una foto de perfil previamente codificada en "base64" asociada al contacto buscado"""
-
-    import module_variable as mod_var
-
-    global w8
-    # global w9
-
-    image_64_decode = base64.decodebytes(mod_var.image_64_encode)
-    image_result = open("foto_perfil.jpg", "wb")
-    image_result.write(
-        image_64_decode
-    )  # crea una imagen editable y escribe el resultado decodificado
-    image_result.flush()
-
-    imagenL = Image.open("foto_perfil.jpg")
-    miniatura = (160, 120)
-    imagenL.thumbnail(miniatura)
-
-    imagenL.save("img_miniatura.jpg")
-    img = ImageTk.PhotoImage(file="img_miniatura.jpg")
-
-    """ Guarda la imagen obtenida con el formato JPEG """
-
-    load = Image.open("img_miniatura.jpg")
-    mod_var.render = ImageTk.PhotoImage(load)
 
 
 def exportar(file_export):
@@ -590,7 +546,7 @@ def exportar(file_export):
             try:
                 pdf = FPDF()
                 pdf.add_page()
-                # pdf.set_font("Arial", size=15)
+
                 pdf.set_font("Helvetica", "BU")
                 # Image(string file [, float x [, float y [, float w [, float h [, string type [, mixed link]]]]]])
 
@@ -610,13 +566,7 @@ def exportar(file_export):
                     pdf.cell(250, 4, txt=z, ln=1, align="L")
 
                     pdf.set_font("Helvetica", size=10)
-                    """
-                    if titulo == False:
-                        pdf.set_font("Arial", size=20)
-                        titulo = True
-                    else:
-                        pdf.set_font("Arial", size=10)
-                    """
+
                 if table_name == "doc_airport":
                     nombre_tabla_completa_pdf = (
                         str(fecha_actual) + " Registros_completos.pdf"
@@ -639,3 +589,32 @@ def exportar(file_export):
             showinfo("Message", "No hay registros en la base de datos")
     else:
         showinfo("Message", "No hay registros en la base de datos")
+
+
+def log_rechazado(array_rechazado):
+
+    from vista import combo_fir
+
+    combo_seleccionado = combo_fir.get()
+
+    try:
+        logging.basicConfig(
+            filename="Archivos_rechazados_" + str(combo_seleccionado) + ".log",
+            filemode="w",
+            format="%(asctime)s : %(levelname)s : %(message)s",
+            datefmt="%d/%m/%y %H:%M:%S",
+            level=logging.INFO,
+        )
+        a = 0
+        for x in array_rechazado:
+
+            logging.info(
+                "Se ha Rechazado el archivo: " + str(array_rechazado[a]) + "\n"
+            )
+            a += 1
+
+        logging.shutdown()
+
+    except:
+        print("Error inesperado")
+        logging.fatal("Error inesperado")

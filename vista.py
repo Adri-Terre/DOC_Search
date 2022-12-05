@@ -1,31 +1,71 @@
 from msilib.schema import ComboBox
 from tkinter import *
 from tkinter.messagebox import *
-import sys
-from typing import Container
+
+# import sys
+# from typing import Container
 from module_base_de_datos import connection_db
 import module_variable as mod_var
 import controller
 from tkinter import ttk  # para la barra de progreso
 
+
 global w9, w10, w11, w13
+
+
+def descargar():
+
+    """esta funcion crea una pantalla donde muestra las opciones para descargar"""
+
+    global win_descargar
+
+    win_descargar = Toplevel()
+    win_descargar.title("Descargar")
+    win_descargar.geometry("300x100")
+
+    mod_var.var1 = BooleanVar()
+    mod_var.var2 = BooleanVar()
+    # label_autor = Label(win, text="ING. TERRENI ADRIAN HORACIO\n\nv1.0 - AÑO: 2022")
+    Checkbutton(
+        win_descargar,
+        text="Archivos existentes",
+        onvalue=1,
+        offvalue=0,
+        variable=mod_var.var1,
+    ).place(x=80, y=40)
+    Checkbutton(
+        win_descargar,
+        text="Archivos pendientes",
+        onvalue=1,
+        offvalue=0,
+        variable=mod_var.var2,
+    ).place(x=80, y=10)
+
+    Button(
+        win_descargar,
+        text="Aplicar",
+        width=15,
+        command=controller.aplicar_descargar,
+        anchor=CENTER,
+    ).place(x=90, y=70)
+    # label_autor.place(x=60, y=20)
 
 
 def autor():
 
-    """esta funcion crea una pantalla donde se muestran los integrantes del proyecto"""
+    """esta funcion crea una pantalla donde se muestra el autor del proyecto"""
 
     win = Toplevel()
     win.title("Autor")
     win.geometry("300x100")
     label_autor = Label(win, text="ING. TERRENI ADRIAN HORACIO\n\nv1.0 - AÑO: 2022")
-
     label_autor.place(x=60, y=20)
 
 
 def insertar_documentacion():
 
     """esta funcion, a traves del controller, inserta la documentacion a analizar"""
+
     controller.control_buscardocumentacion()
 
 
@@ -33,26 +73,26 @@ def analizar():
     controller.control_analizar_por_sitio()
 
 
-def limpiar():
-    controller.control_limpiar()
+def reset():
+    controller.control_reset()
 
 
 def call_exportar_1():
 
-    """esta funcion, a traves del controller, exporta los datos de la agenda en .pdf, .csv, xml, json"""
+    """esta funcion, a traves del controller, exporta los datos de la agenda en .pdf, .csv"""
 
     controller.control_exportar("doc_airport")
 
 
 def call_exportar_2():
 
-    """esta funcion, a traves del controller, exporta los datos de la agenda en .pdf, .csv, xml, json"""
+    """esta funcion, a traves del controller, exporta los datos de la agenda en .pdf, .csv"""
     combo_seleccionado = combo_fir.get()
     combo_seleccionado = combo_seleccionado + "_pendientes"
     controller.control_exportar(combo_seleccionado)
 
 
-# ----------------------------SECCIÓN GRÁFICA DE LA AGENDA------------------------
+# ----------------------------SECCIÓN GRÁFICA DE LA APP------------------------
 
 master = Tk()
 
@@ -82,11 +122,6 @@ anio_input.configure(width=15)
 anio_input.place(x=30, y=30)
 anio_input.focus_set()
 
-# """ cuadro de texto donde van a aparecer los datos de contacto """
-
-# datos_carpetas = Text(master)
-# datos_carpetas.place(x=380, y=40, width=200, height=200)
-
 """ Aquí se crea la pantalla principal """
 
 master.geometry("620x300")
@@ -99,11 +134,6 @@ menu.add_cascade(label="Archivo", menu=filemenu)
 filemenu.add_command(label="Exportar existentes", command=call_exportar_1)
 filemenu.add_separator()
 filemenu.add_command(label="Exportar pendientes", command=call_exportar_2)
-
-# ---------Menu----------------------------
-Menu_x = Menu(menu)
-menu.add_cascade(label="Menu", menu=Menu_x)
-
 
 # ---------Acerca de-----------------------
 acerca_de = Menu(menu)
@@ -120,20 +150,21 @@ Button(
     anchor=CENTER,
 ).place(x=220, y=28)
 # -----------------------------------------------------------------------------------
-Button(master, text="Reset", width=15, command=limpiar, anchor=CENTER).place(
-    x=420, y=250
+Button(master, text="Reset", width=15, command=reset, anchor=CENTER).place(x=495, y=250)
+# -----------------------------------------------------------------------------------
+Button(master, text="Descargar", width=15, command=descargar, anchor=CENTER).place(
+    x=370, y=250
 )
 # -----------------------------------------------------------------------------------
 
-
 fir_frame = LabelFrame(master, text="Fir", bd=2)
-fir_frame.place(x=10, y=160, width=200, height=80)
+fir_frame.place(x=10, y=160, width=200, height=60)
 
 Button(master, text="Analizar", width=22, command=analizar, anchor=CENTER).place(
     x=220, y=175
 )
 
-Checkbutton(master, text="Incluye tareas semanales").place(x=25, y=210)
+# Checkbutton(master, text="Incluye tareas semanales").place(x=25, y=210)
 
 combo_fir = ttk.Combobox(
     state="readonly", values=["fir_eze", "fir_cba", "fir_crv", "fir_sis", "fir_doz"]
@@ -153,17 +184,18 @@ else:
     w3 = Label(master, text="Database Offline", foreground="red")
     w3.place(x=6, y=260)
 
+"""
 progressbar = ttk.Progressbar(length=600)
 # progressbar = ttk.Progressbar(root,variable=progress_var, maximun = MAX, length=600)
 progressbar.place(x=9, y=280, height=15)
-
-w6 = Label(master, text="Files Downloaded: ", foreground="black")
+"""
+w6 = Label(master, text="Archivos Descargados: ", foreground="black")
 w6.place(x=400, y=30)
 
-w7 = Label(master, text="Files splitted: ", foreground="black")
+w7 = Label(master, text="Archivos Ordenados: ", foreground="black")
 w7.place(x=400, y=60)
 
-w8 = Label(master, text="Files checked: ", foreground="black")
+w8 = Label(master, text="Archivos Analizados: ", foreground="black")
 w8.place(x=400, y=90)
 
 w9 = Label(master, text="-", foreground="red")
@@ -175,7 +207,7 @@ w10.place(x=530, y=60)
 w11 = Label(master, text="-", foreground="red")
 w11.place(x=530, y=90)
 
-w12 = Label(master, text="Report Created: ", foreground="black")
+w12 = Label(master, text="Reporte Creado: ", foreground="black")
 w12.place(x=400, y=120)
 
 w13 = Label(master, text="-", foreground="red")
