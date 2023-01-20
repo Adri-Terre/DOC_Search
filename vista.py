@@ -4,6 +4,7 @@ from tkinter.messagebox import *
 
 # import sys
 # from typing import Container
+from PIL import Image, ImageTk
 from module_base_de_datos import connection_db
 import module_variable as mod_var
 import controller
@@ -173,9 +174,10 @@ combo_fir.place(x=30, y=180)
 
 db_conectado = connection_db()
 
+"""
 if mod_var.db_table_aep == False:
     controller.control_cargar_sitios()
-
+"""
 
 if db_conectado == True:
     w2 = Label(master, text="Database Online", foreground="blue")
@@ -212,5 +214,14 @@ w12.place(x=400, y=120)
 
 w13 = Label(master, text="-", foreground="red")
 w13.place(x=530, y=120)
+
+load = Image.open("logo2.png")
+miniatura = (160, 120)
+load.thumbnail(miniatura)
+load.save("img_miniatura.png")
+load = Image.open("img_miniatura.png")
+mod_var.render = ImageTk.PhotoImage(load)
+w14 = Label(master, image=mod_var.render)
+w14.place(x=220, y=100)
 
 master.mainloop()

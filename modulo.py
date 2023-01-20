@@ -1,5 +1,4 @@
 from tkinter import *
-
 import sys
 from module_base_de_datos import connection_db
 import itertools
@@ -7,9 +6,6 @@ import csv
 from tkinter.filedialog import askopenfilename
 from tkinter.messagebox import *
 import vista
-
-# from PIL import ImageTk, Image
-# import base64
 from fpdf import FPDF
 
 import os
@@ -34,7 +30,7 @@ class Registros:  # (Patr_Obs):
 
     def cargar_doc(self, airport, system, files, year, fir):
 
-        """esta funcion carga un contacto en la base de datos"""
+        """esta funcion carga los archivos en la base de datos"""
 
         from module_base_de_datos import operacion_db
 
@@ -49,7 +45,6 @@ class Registros:  # (Patr_Obs):
             doc_input = Doc_input(airport, system, files, year, fir)
             self.doc_search.append(doc_input)
             n += 1
-            # self.notificar()
 
     def cargar_csv(self, id, airport, system, files, year, fir):
 
@@ -60,7 +55,7 @@ class Registros:  # (Patr_Obs):
 
     def separar_por_sitio(self):
 
-        """Esta funcion se utiliza tanto para buscar todos los contactos en la agenda, como así también uno específico"""
+        """Esta funcion se utiliza para separar todos los archivos por su regional"""
 
         from module_base_de_datos import operacion_db_buscar
         from module_base_de_datos import operacion_db
@@ -132,54 +127,72 @@ class Registros:  # (Patr_Obs):
 
     def analizar_por_sitio(self):
 
-        # Esta funcion analiza por fir seleccionada la información existente.
+        """Esta funcion analiza por fir seleccionada la información existente"""
+
         import re
         from module_base_de_datos import operacion_db_buscar
         from module_base_de_datos import operacion_db
         import module_variable as mod_var
         from vista import combo_fir, mes_desde_input, mes_hasta_input, w11
 
-        global Str_system
+        global str_system
         global informacion
-        # global informacion_aux
         global mes
         global files_mes
+        global files_mes_aux
+        global files_mes_aux_2
         global aux_mes_anterior
         global aux_airport
         global aux_system
         global array_ils
+        global array_ils_sin_dme
         global array_li
         global array_vor
+        global array_vor_sin_dme
         global array_total
         global no_data_mes
         global anio_desde
         global anio_hasta
         global aux_mes_2
-        global periodo  # antes periodo
+        global periodo
         global check_mes_hasta, check_mes_desde
-
+        global anio_state
         global array_rechazados
-        # global w11
+        global aux_system_2
+        global special_var
         no_data_mes = False
         array_rechazados = []
         check_mes_hasta = False
         check_mes_desde = False
         periodo = False
         informacion = ""
-        # informacion_aux = ""
+        anio_state = True
+        special_var = False
 
-        array_ils = ["LH", "ILS PARAMETROS", "DME ILS PARAMETROS"]
+        array_ils = ["LH", "DME ILS PARAMETROS", "ILS PARAMETROS"]
+
         array_vor = [
             "LH",
-            "VOR PARAMETROS I",
             "VOR PARAMETROS II",
+            "VOR PARAMETROS I",
             "DME VOR PARAMETROS",
         ]
+
         array_li = ["LH", "LI PARAMETROS"]
+
+        array_vor_sin_dme = [
+            "LH",
+            "VOR PARAMETROS II",
+            "VOR PARAMETROS I",
+        ]
+
+        array_ils_sin_dme = ["LH"]
 
         array_total = set(array_ils + array_li + array_vor)
 
         files_mes = []
+        files_mes_aux = []
+        files_mes_aux_2 = []
 
         anio_desde = int(mes_desde_input.get())
         anio_hasta = int(mes_hasta_input.get())
@@ -204,19 +217,22 @@ class Registros:  # (Patr_Obs):
                 check_mes_hasta = False
                 aux_system = informacion[2]
                 check_mes_desde = False
+                anio_desde = int(mes_desde_input.get())
 
             elif (aux_system != informacion[2]) & (check_mes_hasta == True):
 
                 check_mes_hasta = False
                 aux_system = informacion[2]
                 check_mes_desde = False
-            """
+                anio_desde = int(mes_desde_input.get())
+
             elif (aux_airport == informacion[1]) & (check_mes_hasta == True):
 
                 check_mes_hasta = False
                 check_mes_desde = False
                 periodo = False
-            """
+                anio_desde = int(mes_desde_input.get())
+
             if (
                 (aux_airport == informacion[1])
                 & (check_mes_hasta == False)
@@ -225,22 +241,113 @@ class Registros:  # (Patr_Obs):
 
                 aux_mes_2 = aux_mes_anterior
                 file_cadena = informacion[3]
+
                 mes = file_cadena[5] + file_cadena[6]
-                # word = file_cadena.find("LH")
+
                 mes_array = int(mes)
+
+                if len(files_mes_aux) != 0:
+                    mes_pend = files_mes_aux[5] + files_mes_aux[6]
+                    mes_array_pend = int(mes_pend)
+                    # agrego el 12-01
+
+                    if mes_array_pend <= anio_hasta:  # agrego el 12-01
+
+                        if (special_var == True) & (mes_array_pend > aux_mes_anterior):
+                            self.check_array()
+                            aux_mes_anterior += 1
+                            anio_desde = aux_mes_anterior  # agrego el 10/01
+                            special_var = False
+
+                        if mes_array_pend != mes_array:
+                            files_mes = []  # comento el 27-12
+                            files_mes.append(files_mes_aux)
+                            aux_mes_anterior_2 = aux_mes_anterior
+                            aux_mes_anterior = mes_array_pend
+                            aux_airport_2 = aux_airport
+                            aux_airport = (
+                                files_mes_aux[11]
+                                + files_mes_aux[12]
+                                + files_mes_aux[13]
+                            )
+                            aux_system_2 = aux_system
+                            aux_system = (
+                                files_mes_aux[15]
+                                + files_mes_aux[16]
+                                + files_mes_aux[17]
+                            )
+
+                            if aux_system == "DME":
+                                aux_system = (
+                                    files_mes_aux[19]
+                                    + files_mes_aux[20]
+                                    + files_mes_aux[21]
+                                )
+
+                            files_mes_aux = []
+                            anio_state = False  # agrego 29-12 10.30 hs
+                            self.check_array()
+                            aux_mes_anterior = aux_mes_anterior_2
+                            aux_airport = aux_airport_2
+                            aux_system = aux_system_2
+                            anio_desde += 1  ### 23-12
+                            anio_state = True
+
+                            aux_mes_anterior += 1
+                        files_mes_aux_2 = files_mes_aux  # agrego 28-12
+                        files_mes_aux = []  # se borra el 27-12
+
+                ############
 
                 if mes_array >= anio_desde:
                     check_mes_desde = True
                 ########### modificación 5-10-22
-                while anio_desde < mes_array:  # or (mes_array < anio_hasta):
+
+                if (files_mes_aux_2 != []) & (periodo == True):
+                    mes_array = anio_hasta
+                    periodo = False
+                    special_var = True
+                    anio_state = False
+                    aux_airport = (
+                        files_mes_aux_2[11] + files_mes_aux_2[12] + files_mes_aux_2[13]
+                    )
+                    aux_system = (
+                        files_mes_aux_2[15] + files_mes_aux_2[16] + files_mes_aux_2[17]
+                    )
+                while (anio_desde < mes_array) & (
+                    mes_array <= anio_hasta
+                ):  # agrego 12-01
+
+                    if (files_mes_aux_2 != []) & (
+                        special_var == False  # agrego el 03-01 a las 01hs
+                    ):  # agrego 29-12 14.3 hs
+                        mes_array = int(files_mes_aux_2[5] + files_mes_aux_2[6])
+
                     aux_mes_anterior = anio_desde
+
                     anio_desde += 1
                     no_data_mes = True
+
+                    file_cadena = []  # agrego esto 12/12
                     periodo = self.check_array()
+                    anio_state = True
+
                     if periodo == True:
                         periodo = False
                         break
                     aux_mes_anterior = anio_desde
+
+                if files_mes_aux_2 != []:
+                    mes_array = int(files_mes_aux_2[5] + files_mes_aux_2[6])
+                    if int(mes) > aux_mes_anterior:
+                        files_mes.append(files_mes_aux_2)
+                        anio_state = False
+                        files_mes_aux_2 = []
+                        periodo = self.check_array()
+                        anio_state = True
+                        aux_mes_anterior = int(mes)
+                        files_mes = []
+                        anio_desde = aux_mes_anterior
 
                 if (
                     (informacion[2] == aux_system)
@@ -248,23 +355,16 @@ class Registros:  # (Patr_Obs):
                     & (periodo == False)
                     & (aux_airport == informacion[1])
                 ):
-                    # aca
-                    """
-                    if informacion_aux != "":
-                        if (
-                            (informacion_aux[2] == aux_system)
-                            & ((aux_mes_anterior) == int(mes))
-                            & (periodo == False)
-                            & (aux_airport == informacion_aux[1])
-                        ):
-
-                            files_mes.append(informacion_aux[3])
-                            informacion_aux = ""
-                    """
                     files_mes.append(informacion[3])
-
+                    if files_mes_aux_2 != []:  # agrego 03-01 12.30 hs
+                        mes_array = int(
+                            files_mes_aux_2[5] + files_mes_aux_2[6]
+                        )  # agrego 03-01 12.30 hs
+                        if int(mes) == aux_mes_anterior:  # agrego 03-01 12.30 hs
+                            files_mes.append(files_mes_aux_2)  # agrego 03-01 12.30 hs
+                            files_mes_aux_2 = []  # agrego 03-01 14.02 HS
                     aux_mes_anterior = int(mes)
-
+                    anio_state = False
                 else:  # una vez cargado todo el mes, analiza la información
 
                     if (
@@ -272,29 +372,77 @@ class Registros:  # (Patr_Obs):
                         & (check_mes_hasta == False)
                         & (check_mes_desde == True)
                     ):  #####################
+                        anio_state = True  #################23-12 19 hs
                         periodo = self.check_array()
+                        anio_desde += 1  # agregooooooo      29-12 18.30 hs
                         check_mes_desde = False
                     else:
                         periodo = False
                         anio_desde = int(mes_desde_input.get())
-                    # break
+
             else:
 
                 if (aux_mes_anterior <= anio_hasta) & (check_mes_hasta == False):
-
+                    aux_system_2 = aux_system  # agrego esto 28-12 11 hs
                     no_data_mes = True
-                    periodo = self.check_array()
+                    periodo = self.check_array()  #############################
                     aux_mes_anterior += 1
                     if periodo == False:
+                        anio_state = True  # agrego esto 28-12 11 hs
                         periodo = self.check_array()
+                        files_mes_aux_2 = informacion[3]
+                        mes_pend = (
+                            files_mes_aux_2[5] + files_mes_aux_2[6]
+                        )  # agreego esto 28-12 16 hs
+
+                        if (aux_system_2 != informacion[2]) & (
+                            aux_mes_anterior > int(mes_pend)
+                        ):
+                            files_mes_aux = informacion[3]
+
+                            while (aux_mes_anterior < anio_hasta) & (
+                                check_mes_hasta == False
+                            ):
+                                aux_mes_anterior += 1
+                                aux_system = aux_system_2
+                                periodo = self.check_array()
+
+                        elif (
+                            (aux_system_2 == informacion[2])
+                            & (aux_mes_anterior > int(mes_pend))
+                            & (aux_airport != informacion[1])
+                        ):
+
+                            files_mes_aux = informacion[3]
+                            while (aux_mes_anterior < anio_hasta) & (
+                                check_mes_hasta == False
+                            ):
+                                aux_mes_anterior += 1
+                                aux_system = aux_system_2
+                                periodo = self.check_array()
+
+                        if check_mes_hasta == False:
+                            files_mes_aux = []
+                            aux_system_2 = ""  # agrego esto 28-12 11 hs
+
                     else:
                         periodo = False
                         anio_desde = int(mes_desde_input.get())
-
+                        aux_mes_anterior = (
+                            anio_desde  # 27-12 19 hs #######################
+                        )
         if informacion != "":
 
             if (periodo == False) & (check_mes_hasta == False):
                 self.check_array()
+            while (
+                (aux_mes_anterior < anio_hasta)
+                & (periodo == False)
+                & (check_mes_hasta == False)
+            ):
+                anio_state = True
+                aux_mes_anterior += 1
+                periodo = self.check_array()
 
             vista.w11.destroy()
             vista.w11 = Label(vista.master, text="OK", foreground="green")
@@ -305,7 +453,7 @@ class Registros:  # (Patr_Obs):
             array_system = ""
             informacion = []
 
-            if array_rechazados != "":
+            if len(array_rechazados) != 0:
                 log_rechazado(array_rechazados)
                 array_rechazados = []
                 showinfo("MENSAJE", "Se ha generado un log con archivos rechazados")
@@ -314,111 +462,278 @@ class Registros:  # (Patr_Obs):
 
     def check_array(self):
 
-        # esta función compara los documentos con analizados con los arrays preestablecidos
-        from vista import mes_desde_input
+        """esta función compara los documentos existentes del aeropuerto, con los que exige el manual técnico y el procedimiento"""
 
-        global Str_system
-        global files_mes
+        from vista import mes_desde_input
+        import module_variable as mod_var
+
+        global str_system
+        global files_mes, files_mes_aux
         global aux_system
         global aux_mes_anterior
         global aux_airport
-
+        global sistema_auxiliar
         global aux_system
         global array_ils
+        global array_ils_sin_dme
         global array_li
         global array_vor
+        global array_vor_sin_dme
         global array_total
         global anio_hasta, anio_desde
         global aux_mes_2
-        global periodo  # antes periodo
+        global periodo
         global check_mes_hasta
         global check_mes_desde
-
         global array_rechazados
-        # global informacion_aux
+        global anio_state
+        global files_mes_aux_2
+        global special_var
 
-        # array_rechazados = []
-
-        periodo_ok = False
         a = 0
-        b = len(files_mes)
         c = 0
+        sistema_auxiliar = NONE
+        comando_ok = False
+        command_array = []
+
+        array_system = ""
+
+        if (len(files_mes_aux) != 0) & (anio_state == False):
+            for pend_files in files_mes_aux:
+                files_mes.append(pend_files)
+
+            files_mes_aux = []
+
+        if (len(files_mes_aux_2) != 0) & (anio_state == False):
+
+            files_mes.append(files_mes_aux_2)
+
+            files_mes_aux_2 = []
+
+        b = len(files_mes)
 
         if aux_system == "ILS":
             array_system = array_ils
 
         elif aux_system == "VOR":
             array_system = array_vor
+            sistema_auxiliar = aux_system
 
-        elif aux_system == "LI":
+        elif (aux_system == "LI") or (aux_system == "LI "):
             array_system = array_li
 
+        match aux_airport:
+
+            case "GPI":
+                if aux_system == "VOR":
+                    array_system = array_vor_sin_dme
+            case "LYE":
+                if aux_system == "VOR":
+                    array_system = array_vor_sin_dme
+            case "MJZ":
+                if aux_system == "VOR":
+                    array_system = array_vor_sin_dme
+            case "PTA":
+                if aux_system == "VOR":
+                    array_system = array_vor_sin_dme
+            case "VIE":
+                if aux_system == "VOR":
+                    array_system = array_vor_sin_dme
+            case "NIN":
+                if aux_system == "VOR":
+                    array_system = array_vor_sin_dme
+            case "SDE":
+                if aux_system == "VOR":
+                    array_system = array_vor_sin_dme
+            case "GBE":
+                if aux_system == "VOR":
+                    array_system = array_vor_sin_dme
+            case "USU":
+                if aux_system == "VOR":
+                    array_system = array_vor_sin_dme
+            case "DIL":
+                if aux_system == "ILS":
+                    array_system = array_ils_sin_dme
+            case "RYD":
+                if aux_system == "ILS":
+                    array_system = array_ils_sin_dme
+
         l = 0
-        rechazado = False
-        while a < b:
 
-            for array_data in array_total:
+        if anio_state == False:
+            ####################
+            while a < b:
+                rechazado = False
+                c = 0
+                for array_data in array_system:  # array_total:
 
-                word = files_mes[a].find(array_data)
-                if word != -1:
+                    if array_data in files_mes[a]:
+                        try:
+                            if array_data == "VOR PARAMETROS II":
 
-                    try:
-                        if array_data == "VOR PARAMETROS II":
-                            array_system.remove(array_data)
-                            rechazado = True
+                                rechazado = True
+                                mod_var.contador_vor_par_2 += 1
+                                break
+                            else:
+                                if array_data == "LH":
+                                    if ("DME ILS" in files_mes[a]) or (
+                                        "DME VOR" in files_mes[a]
+                                    ):
+                                        pass
+                                    else:
+                                        command = str(array_data)
+                                        array_system.remove(command)
+                                        rechazado = True
+                                        command_array.append(command)
+                                ####
+                                else:
+                                    command = str(array_data)
+                                    array_system.remove(command)
+                                    rechazado = True
+                                    command_array.append(command)
+                                ####
+                                break
+                        except:
+                            pass
+
+                if rechazado == False:
+                    c = 0
+
+                    while c < len(command_array):
+
+                        if command_array[c] in files_mes[a]:
+                            comando_ok = True
                             break
-                        else:
-                            command = str(array_data)
-                            array_system.remove(command)
-                            rechazado = True
-                            break
-                    except:
-                        pass
+                        c += 1
+                    if comando_ok == False:
+                        array_rechazados.append(files_mes[a])
+                        # break
+                a += 1
 
-            if rechazado == False:
-                array_rechazados.append(files_mes[a])
+                if len(array_system) == 0:
+                    break
+            #################################################
 
-            a += 1
         try:
-            Str_system = "-".join(array_system)
-            self.registrar_pendientes()
+            if aux_system == "VOR":
+                array_system.remove("VOR PARAMETROS II")
+
+            str_system = "-".join(array_system)
+            anio = informacion[4]
+            fir = informacion[5]
+            self.registrar_pendientes(
+                aux_airport,
+                aux_system,
+                aux_mes_anterior,
+                str_system,
+                anio,
+                fir,
+            )
+
         except:
             print(aux_system + " no esta en la lista")
-        
-        
 
         if aux_mes_anterior == anio_hasta:
-            periodo = True  # False
-            aux_airport = informacion[1]
+
             anio_desde = int(mes_desde_input.get())
+
+            if ((mod_var.contador_vor_par_2 >= 1) & (sistema_auxiliar == "VOR")) or (
+                (mod_var.contador_vor_par_2 == 0) & (sistema_auxiliar == "VOR")
+            ):
+
+                if anio_hasta - anio_desde == 11:
+
+                    resta = 4 - mod_var.contador_vor_par_2
+                    if resta > 0:
+                        self.registrar_pendientes(
+                            aux_airport,
+                            sistema_auxiliar,
+                            "1-" + str(anio_hasta),
+                            str(resta) + " FOLIO/S VOR PARAMETROS II (trimestrales)",
+                            anio,
+                            fir,
+                        )
+
+                elif anio_hasta - anio_desde > 9:
+
+                    resta = 3 - mod_var.contador_vor_par_2
+                    if resta > 0:
+                        self.registrar_pendientes(
+                            aux_airport,
+                            sistema_auxiliar,
+                            "1-" + str(anio_hasta),
+                            str(resta) + " FOLIO VOR PARAMETROS II (trimestrales)",
+                            anio,
+                            fir,
+                        )
+                elif anio_hasta - anio_desde > 6:
+
+                    resta = 2 - mod_var.contador_vor_par_2
+                    if resta > 0:
+                        self.registrar_pendientes(
+                            aux_airport,
+                            sistema_auxiliar,
+                            "1-" + str(anio_hasta),
+                            str(resta) + " FOLIO VOR PARAMETROS II (trimestrales)",
+                            anio,
+                            fir,
+                        )
+                elif anio_hasta - anio_desde > 3:
+                    resta = 1 - mod_var.contador_vor_par_2
+                    if resta > 0:
+                        self.registrar_pendientes(
+                            aux_airport,
+                            sistema_auxiliar,
+                            "1-" + str(anio_hasta),
+                            str(resta) + " FOLIO VOR PARAMETROS II (trimestrales)",
+                            anio,
+                            fir,
+                        )
+
+            mod_var.contador_vor_par_2 = 0
+
+            files_mes_aux_2 = []
+            periodo = True
+            aux_airport = informacion[1]
+
             aux_mes_anterior = anio_desde
             check_mes_hasta = True
             check_mes_desde = False
-            # informacion_aux = informacion
-            # periodo = False
+
+            files_mes_aux = informacion[3]
+
+            mes_state = files_mes_aux[5] + files_mes_aux[6]
+
+            if int(mes_state) > 1:
+                anio_state = True
+                files_mes_aux_2 = informacion[3]
+                special_var = True
+
         return periodo
 
-    def registrar_pendientes(self):
+    def registrar_pendientes(
+        self, aeropuerto, sistema, mes_analizado, sistema_pendiente, anio, fir
+    ):
+        """esta funcion carga en la base de datos los archivos pendientes"""
 
         from module_base_de_datos import operacion_db
         from vista import combo_fir, mes_desde_input
 
-        global Str_system
-        global informacion
+        global sistema_auxiliar
         global mes
         global files_mes
-        global aux_mes_anterior
-        global aux_airport
         global aux_system
         global array_ils
+        global array_ils_sin_dme
         global array_li
         global array_vor
+        global array_vor_sin_dme
         global no_data_mes
         global anio_desde
+        global aux_system_2
 
-        # Str_system = "-".join(array_system)
         fir_seleccionada = combo_fir.get()
-        if Str_system != "":
+        if str_system != "":
 
             sql = (
                 "INSERT INTO "
@@ -426,12 +741,12 @@ class Registros:  # (Patr_Obs):
                 + "_pendientes(AIRPORT,SYSTEM,MES,OBSERVACIONES,YEAR,FIR)VALUES(%s,%s,%s,%s,%s,%s)"
             )
             val = [
-                aux_airport,
-                aux_system,
-                str(aux_mes_anterior),
-                "Falta entregar: " + "" + Str_system,
-                informacion[4],
-                informacion[5],
+                aeropuerto,
+                sistema,
+                str(mes_analizado),
+                "Falta entregar: " + "" + sistema_pendiente,
+                anio,
+                fir,
             ]
             operacion_db(sql, val)
 
@@ -442,20 +757,29 @@ class Registros:  # (Patr_Obs):
                 anio_desde = int(mes_desde_input.get())
 
             files_mes.append(informacion[3])
-            # aux_mes_anterior = int(mes)
-            # aux_airport = informacion[1]
+            sistema_auxiliar = aux_system
             aux_system = informacion[2]
 
         no_data_mes = False
 
-        array_ils = ["LH", "ILS PARAMETROS", "DME ILS PARAMETROS"]
+        array_ils = ["LH", "DME ILS PARAMETROS", "ILS PARAMETROS"]
+
         array_vor = [
             "LH",
-            "VOR PARAMETROS I",
             "VOR PARAMETROS II",
+            "VOR PARAMETROS I",
             "DME VOR PARAMETROS",
         ]
+
         array_li = ["LH", "LI PARAMETROS"]
+
+        array_vor_sin_dme = [
+            "LH",
+            "VOR PARAMETROS II",
+            "VOR PARAMETROS I",
+        ]
+
+        array_ils_sin_dme = ["LH"]
 
 
 registro = Registros()
@@ -463,12 +787,11 @@ registro = Registros()
 
 def exportar(file_export):
 
-    """esta funcion exporta los datos de la agenda en .pdf .csv .xml y .json"""
+    """esta funcion exporta los datos de la agenda en .pdf .csv"""
+
     global w12, w13
     from module_base_de_datos import operacion_db_buscar
     import module_variable as mod_var
-
-    #   import xml.etree.ElementTree as ET
     from datetime import date
 
     fecha_actual = date.today()
@@ -483,7 +806,7 @@ def exportar(file_export):
 
     if table_name != "_pendientes":
         if table_name == "doc_airport":
-            # str(fecha_actual) +
+
             nombre_tabla_completa = str(fecha_actual) + " Registros_completos.csv"
             nombre_tabla_completa = nombre_tabla_completa.upper()
             if os.path.exists(nombre_tabla_completa):
@@ -495,8 +818,6 @@ def exportar(file_export):
             if os.path.exists(str(fecha_actual) + " " + table_name.upper() + ".csv"):
                 os.remove(str(fecha_actual) + " " + table_name.upper() + ".csv")
             fichero = open(str(fecha_actual) + " " + table_name.upper() + ".csv", "w")
-        # else:
-        # fichero = open(table_name + ".csv", "w")
 
         escribir = csv.writer(fichero)
 
@@ -548,8 +869,6 @@ def exportar(file_export):
                 pdf.add_page()
 
                 pdf.set_font("Helvetica", "BU")
-                # Image(string file [, float x [, float y [, float w [, float h [, string type [, mixed link]]]]]])
-
                 pdf.image("logo.png", 145, -4, 52)
 
                 if table_name == "doc_airport":
@@ -559,8 +878,6 @@ def exportar(file_export):
                     archivo = open(
                         str(fecha_actual) + " " + table_name.upper() + ".csv", "r"
                     )
-
-                # archivo = open("Archivo-CSV.csv", "r")
 
                 for z in archivo:
                     pdf.cell(250, 4, txt=z, ln=1, align="L")
@@ -593,27 +910,33 @@ def exportar(file_export):
 
 def log_rechazado(array_rechazado):
 
+    """esta función genera un log con los archivos rechazados según la región que se analizó"""
+
     from vista import combo_fir
 
     combo_seleccionado = combo_fir.get()
 
     try:
-        logging.basicConfig(
-            filename="Archivos_rechazados_" + str(combo_seleccionado) + ".log",
-            filemode="w",
-            format="%(asctime)s : %(levelname)s : %(message)s",
-            datefmt="%d/%m/%y %H:%M:%S",
-            level=logging.INFO,
-        )
-        a = 0
-        for x in array_rechazado:
 
-            logging.info(
-                "Se ha Rechazado el archivo: " + str(array_rechazado[a]) + "\n"
+        if len(array_rechazado) != 0:
+
+            logging.basicConfig(
+                filename="Archivos_rechazados_" + str(combo_seleccionado) + ".log",
+                filemode="w",
+                format="%(asctime)s : %(levelname)s : %(message)s",
+                datefmt="%d/%m/%y %H:%M:%S",
+                level=logging.INFO,
             )
-            a += 1
+            a = 0
 
-        logging.shutdown()
+            for x in array_rechazado:
+
+                logging.info(
+                    "Se ha Rechazado el archivo: " + str(array_rechazado[a]) + "\n"
+                )
+                a += 1
+
+            logging.shutdown()
 
     except:
         print("Error inesperado")

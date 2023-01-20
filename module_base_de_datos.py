@@ -45,11 +45,9 @@ def connection_db():
         mod_var.mycursor.execute(
             "CREATE TABLE fir_crv (ID INT AUTO_INCREMENT PRIMARY KEY, AIRPORT VARCHAR(255),SYSTEM VARCHAR(255),FILES VARCHAR(255), YEAR VARCHAR(255), FIR VARCHAR(255)"
         )
-        # mod_var.mycursor.execute(
-        #    "CREATE TABLE aep_table (ID INT AUTO_INCREMENT PRIMARY KEY, AIRPORT VARCHAR(255),FIR VARCHAR(255)"
-        # )
+
         db_conectado = True
-        # db_tabla_aep = True
+
         return db_conectado
 
     except mysql.connector.Error as err:
@@ -67,9 +65,6 @@ def connection_db():
             mibase = MySQLDatabase(
                 "doc_search", user="root", password="", host="localhost", port=3306
             )
-            # mibase = MySQLDatabase(
-            #    "aep_table", user="root", password="", host="localhost", port=3306
-            # )
 
             class BaseModel(Model):
                 class Meta:
@@ -82,11 +77,6 @@ def connection_db():
                 FILES = CharField()
                 YEAR = CharField()
                 FIR = CharField()
-
-            # class aep_table(BaseModel):
-
-            #    AIRPORT = CharField()
-            #    FIR = CharField()
 
             class fir_cba(BaseModel):
 
@@ -175,7 +165,6 @@ def connection_db():
 
             mibase.connect()
             mibase.create_tables([doc_airport])
-            # mibase.create_tables([aep_table])
             mibase.create_tables([fir_cba])
             mibase.create_tables([fir_sis])
             mibase.create_tables([fir_crv])
@@ -229,7 +218,6 @@ def eliminar_tabla_fir():
         host="localhost", user="root", password="", database="doc_search"
     )
     mycursor = my_db.cursor()
-    # sql = "TRUNCATE TABLE IF EXISTS FIR_EZE_PENDIENTES"
 
     sql = "TRUNCATE TABLE FIR_EZE_PENDIENTES"
     mycursor.execute(sql)

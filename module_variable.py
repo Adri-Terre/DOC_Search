@@ -1,13 +1,16 @@
+""" este modulo se emplea para emplear variables globales """
+
 db_conectado = False
 regex_numero = "[0-9]"
 image_64_encode = ""
 var1 = False
 var2 = False
-
+global contador_vor_par_2
+contador_vor_par_2 = 0
 global db_table_aep
 global archivos_aux
 db_table_aep = False
-
+analizar_doc = False
 
 aeropuertos = (
     "AEP",
@@ -24,7 +27,9 @@ aeropuertos = (
     "ECA",
     "ERE",
     "ESQ",
-    "EZE",
+    "EZE RWY 11 29",  # 2-1-23
+    "EZE RWY 17 35",  # 2-1-23
+    "EZE VOR",  # 2-1-23
     "FDO",
     "FSA",
     "GAL",
@@ -85,6 +90,8 @@ regionales = (
     "CRV",
     "EZE",
     "EZE",
+    "EZE",
+    "EZE",
     "SIS",
     "CRV",
     "EZE",
@@ -92,7 +99,7 @@ regionales = (
     "EZE",
     "CRV",
     "EZE",
-    "EZE",
+    "SIS",
     "DOZ",
     "CBA",
     "CBA",
@@ -114,7 +121,7 @@ regionales = (
     "CBA",
     "CBA",
     "SIS",
-    "DOZ",
+    "CRV",
     "EZE",
     "DOZ",
     "EZE",
@@ -127,4 +134,4 @@ regionales = (
     "CRV",
 )
 
-""" este modulo se emplea para emplear variables globales """
+

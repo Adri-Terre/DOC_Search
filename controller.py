@@ -1,3 +1,5 @@
+# auto-py-to-exe
+
 import vista
 from tkinter.messagebox import *
 from tkinter import *
@@ -5,11 +7,11 @@ from os import walk
 from tkinter import filedialog
 import os.path
 
-# import module_variable
-# from tkinter import ttk
-
 
 def control_buscardocumentacion(ruta="."):
+
+    """esta funcion descarga y va analizando toda la información del sharepoint"""
+
     import modulo as mod
     import module_variable as mod_var
     import re
@@ -17,10 +19,8 @@ def control_buscardocumentacion(ruta="."):
     from alive_progress import alive_bar
     from time import sleep
 
-    # from vista import w9, w10
-
-    # global w10
-    # global w12
+    mod_var.contador_vor_par_2 = 0
+    cant_archivos = 0
     re_match = None
     dir, subdirs, archivos = next(walk(ruta))
     max = 600
@@ -39,17 +39,11 @@ def control_buscardocumentacion(ruta="."):
 
         y = 0
         p_len = int(len(folder_selected))
-        # vista.progressbar.start()
         p = max / p_len
 
-        # vista.progressbar.step(p)
-
-        # alive_bar(100)
         for x in subdirs:
             print(subdirs)
             carpeta_sitio = subdirs[y]
-            # alive_bar(p)
-            # print(type(p))
             carpeta = folder_selected + "/" + carpeta_sitio + "/" + anio_seleccionado
             p_len = int(len(carpeta))
             if os.path.exists(carpeta):
@@ -60,15 +54,9 @@ def control_buscardocumentacion(ruta="."):
                     z = 0
                     n = 0
                     i = 0
-                    # p = p + 0.6
 
                     print(carpeta_sitio)
-                    """
-                    with alive_bar(100) as bar:  # default setting
-                        for i in range(100):
-                            # sleep(0.03)
-                            bar()
-                    """
+
                     for x in subdirs:
                         subcarpeta = subdirs[z]
                         carpeta2 = (
@@ -81,14 +69,24 @@ def control_buscardocumentacion(ruta="."):
                             + subcarpeta
                         )
                         dir, subdirs, archivos = next(walk(carpeta2))
-                        # print("Actual: ", dir)
+
                         print(subcarpeta)
 
                         print("Archivos: ", archivos)
-
-                        # vista.progressbar.step(p)
+                        cant_archivos = cant_archivos + len(archivos)
 
                         archivos_aux = archivos
+                        if archivos_aux == []:
+                            crear_archivo_pend = (
+                                anio_seleccionado
+                                + str(".01.01 ")
+                                + carpeta_sitio
+                                + " "
+                                + subcarpeta
+                                + " "
+                                + "INFORMACION PENDIENTE"
+                            )
+                            archivos_aux.append(crear_archivo_pend)
                         dir, subdirs, archivos = next(walk(carpeta))
                         z = z + 1
 
@@ -107,22 +105,10 @@ def control_buscardocumentacion(ruta="."):
                         )
                         p = p + (max / p_len)
 
-                        # vista.progressbar(max_value=10)
-
-                        # for i in range(50):
-                        #    vista.progressbar.step(i)
-                        #    i += 1
-                        #    time.sleep(0.1)
-
-                        # vista.progressbar.step(p)
-                        # vista.progressbar.start(100)
-                        # vista.progressbar.step(i)
-
-                    # vista.progressbar.step(i)
                 dir, subdirs, archivos = next(walk(folder_selected))
 
                 vista.w9.destroy()
-                vista.w9 = Label(vista.master, text="OK", foreground="green")
+                vista.w9 = Label(vista.master, text=cant_archivos, foreground="green")
                 vista.w9.place(x=530, y=30)
 
                 y = y + 1
@@ -130,17 +116,13 @@ def control_buscardocumentacion(ruta="."):
             else:
                 y += 1
                 pass
-        # vista.progressbar.step(0)
 
+        print("cantidad de archivos descargados: ", cant_archivos)
         mod.registro.separar_por_sitio()  # aca llama a la funcion que separa la documentación por region
-
-        # vista.progressbar.step(99.99)
 
         vista.w10.destroy()
         vista.w10 = Label(vista.master, text="OK", foreground="green")
         vista.w10.place(x=530, y=60)
-        # vista.progressbar.destroy()
-        # vista.progressbar.step(99)
 
     else:
 
@@ -157,139 +139,18 @@ def control_buscardocumentacion(ruta="."):
     return archivos
 
 
-def control_cargar_sitios():
-    import modulo as mod
-
-    aeropuertos = (
-        "AEP",
-        "BAR",
-        "BCA",
-        "CAT",
-        "CBA",
-        "CHP",
-        "CRR",
-        "CRV",
-        "DIL",
-        "DOZ",
-        "DRY",
-        "ECA",
-        "ERE",
-        "ESQ",
-        "EZE",
-        "FDO",
-        "FSA",
-        "GAL",
-        "GBE",
-        "GNR",
-        "GPI",
-        "GRA",
-        "GUA",
-        "IGU",
-        "JUA",
-        "JUJ",
-        "LAR",
-        "LYE",
-        "MDP",
-        "MJZ",
-        "MLG",
-        "NEU",
-        "NIN",
-        "OEL",
-        "OSA",
-        "PAL",
-        "PAR",
-        "POS",
-        "PTA",
-        "ROS",
-        "RTA",
-        "RYD",
-        "SAL",
-        "SDE",
-        "SIS",
-        "SJU",
-        "SNT",
-        "SRA",
-        "SVO",
-        "TRC",
-        "TRE",
-        "TRH",
-        "TUC",
-        "UIS",
-        "USH",
-        "VIE",
-    )
-
-    regionales = (
-        "EZE",
-        "EZE",
-        "EZE",
-        "CBA",
-        "CBA",
-        "EZE",
-        "SIS",
-        "CRV",
-        "EZE",
-        "DOZ",
-        "CRV",
-        "CRV",
-        "CBA",
-        "CRV",
-        "EZE",
-        "EZE",
-        "SIS",
-        "CRV",
-        "EZE",
-        "EZE",
-        "EZE",
-        "CRV",
-        "EZE",
-        "EZE",
-        "DOZ",
-        "CBA",
-        "CBA",
-        "EZE",
-        "EZE",
-        "CBA",
-        "DOZ",
-        "EZE",
-        "EZE",
-        "EZE",
-        "EZE",
-        "EZE",
-        "EZE",
-        "SIS",
-        "EZE",
-        "EZE",
-        "SIS",
-        "DOZ",
-        "CBA",
-        "CBA",
-        "SIS",
-        "DOZ",
-        "EZE",
-        "DOZ",
-        "EZE",
-        "CBA",
-        "CRV",
-        "CBA",
-        "CBA",
-        "DOZ",
-        "CRV",
-        "CRV",
-    )
-
-    # mod.registro.cargar_sitios(aeropuertos, regionales)
-
-
 def control_exportar(doc_airport):
 
-    """esta funcion se emplea para exportar la agenda en formatos csv, pdf, json, xml"""
+    """esta funcion se emplea para exportar la agenda en formatos csv, pdf"""
+
     import modulo as mod
 
     mod.exportar(doc_airport)
 
 
 def control_reset():
+
+    """esta funcion se emplea para eliminar las tablas analizadas"""
 
     from module_base_de_datos import eliminar_tabla_fir
 
@@ -298,16 +159,9 @@ def control_reset():
     vista.anio_input.delete(0, END)
     vista.combo_fir.delete(0, END)
 
-    # text_w10 = vista.w10.cget("text")
     text_w11 = vista.w11.cget("text")
     text_w13 = vista.w13.cget("text")
 
-    """
-    if text_w10 == "OK":
-        vista.w10.destroy()
-        vista.w10 = Label(vista.master, text="-", foreground="red")
-        vista.w10.place(x=530, y=60)
-    """
     if text_w11 == "OK":
         vista.w11.destroy()
         vista.w11 = Label(vista.master, text="-", foreground="red")
@@ -329,27 +183,15 @@ def control_reset():
 
 def control_analizar_por_sitio():
 
+    """esta funcion busca un todo lo existente en las carpetas a analizar, y muestra en la pantalla cantidades y labels"""
+
     import modulo as mod
     from vista import combo_fir, mes_desde_input, mes_hasta_input
     from alive_progress import alive_bar
     import module_variable as mod_var
-
-    # from time import sleep
     import re
 
-    """
-    vista.progressbar.destroy()
-
-    with alive_bar(100) as bar:  # default setting
-        for i in range(100):
-            sleep(0.03)
-            bar()
-    """
-
     combo_seleccionado = combo_fir.get()
-
-    """esta funcion busca un todo lo existente en las carpetas a analizar, y muestra en la pantalla cantidades y labels"""
-
     anio_seleccionado = vista.anio_input.get()
     periodo_desde = vista.mes_desde_input.get()
     periodo_hasta = vista.mes_hasta_input.get()
@@ -363,25 +205,36 @@ def control_analizar_por_sitio():
     else:
         re_match_2 = False
 
-    if anio_seleccionado != "":
-        if combo_seleccionado != "" and periodo_desde != "" and periodo_hasta != "":
-            if (re_match & re_match_2) == True:
-                mod.registro.analizar_por_sitio()
+    if mod_var.analizar_doc == False:
+
+        mod_var.analizar_doc = True
+
+        if anio_seleccionado != "":
+            if combo_seleccionado != "" and periodo_desde != "" and periodo_hasta != "":
+                if (re_match & re_match_2) == True:
+                    mod.registro.analizar_por_sitio()
+                else:
+                    showinfo(
+                        "Mensaje Período", "El período ingresado deben ser números"
+                    )
             else:
-                showinfo("Mensaje Período", "El período ingresado deben ser números")
+                showinfo(
+                    "Campos incompletos",
+                    "Complete todos los campos",
+                )
         else:
             showinfo(
-                "Campos incompletos",
-                "Complete todos los campos",
+                "AÑO INGRESADO",
+                "Ingrese año del periodo a analizar y seleccione la documentación",
             )
+
     else:
-        showinfo(
-            "AÑO INGRESADO",
-            "Ingrese año del periodo a analizar y seleccione la documentación",
-        )
+        showinfo("Mensaje Analizar", "La documentación ya ha sido analizada")
 
 
 def aplicar_descargar():
+
+    """esta funcion descarga los archivos pendientes o todos los archivos existentes"""
 
     import module_variable as mod_var
     import vista as mod_vista
