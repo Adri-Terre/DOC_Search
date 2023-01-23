@@ -254,10 +254,11 @@ class Registros:  # (Patr_Obs):
                     if mes_array_pend <= anio_hasta:  # agrego el 12-01
 
                         if (special_var == True) & (mes_array_pend > aux_mes_anterior):
-                            self.check_array()
-                            aux_mes_anterior += 1
-                            anio_desde = aux_mes_anterior  # agrego el 10/01
-                            special_var = False
+                            while aux_mes_anterior < mes_array_pend: #agrego el 23-1
+                                self.check_array()
+                                aux_mes_anterior += 1
+                                anio_desde = aux_mes_anterior  # agrego el 10/01
+                                special_var = False
 
                         if mes_array_pend != mes_array:
                             files_mes = []  # comento el 27-12
