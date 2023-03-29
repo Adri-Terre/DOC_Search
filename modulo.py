@@ -160,6 +160,11 @@ class Registros:  # (Patr_Obs):
         global array_rechazados
         global aux_system_2
         global special_var
+
+        global check_array_call
+        
+        check_array_call = False
+
         no_data_mes = False
         array_rechazados = []
         check_mes_hasta = False
@@ -203,6 +208,7 @@ class Registros:  # (Patr_Obs):
 
         mes_anterior = 0
         for sistema in resultado:
+            # guarda la primer información para backup
             aux_airport = sistema[1]
             aux_system = sistema[2]
             mes_anterior = sistema[3]
@@ -210,241 +216,105 @@ class Registros:  # (Patr_Obs):
             aux_mes_anterior = int(mes_anterior)
             break
         for informacion in resultado:
+            """
+            si entra en el periodo de analisis
+            pregunta si es mayor a en anio_Desde
+                si no lo es llama a la funcion que completa solo hasta el mes en cuestion, siempre
+                que no supere al anio_hasta
+            """
+            airport = informacion[1]
+            system = informacion[2]
+            file_cadena = informacion[3]
+            mes = file_cadena[5] + file_cadena[6]
+            mes = int(mes)
 
-            if (aux_airport != informacion[1]) & (check_mes_hasta == True):
+            match airport:
+                case airport if (airport!=aux_airport):
+                    print (airport)
+                    if (files_mes!=[]) & (check_array_call==False):#&(periodo==False):
+                        
+                        if (periodo == False):
+                            anio_state = False
+                            self.check_array(aux_mes_anterior)
+                        #check_array_call == True
+                        if (periodo==True):
+                            if (files_mes!=[])& (check_array_call==False):
+                                anio_state = False
+                                self.check_array(aux_mes_anterior)
+                            anio_desde = int(mes_desde_input.get())
+                            periodo=False
+                            aux_mes_anterior = anio_desde
+                            if (aux_system=="VOR"):
+                                self.pendientes_vor_parametros_II(informacion[4],informacion[5])
 
-                aux_airport = informacion[1]
-                check_mes_hasta = False
-                aux_system = informacion[2]
-                check_mes_desde = False
-                anio_desde = int(mes_desde_input.get())
+                            aux_airport = informacion[1]
+                            aux_system = informacion[2]
+                            check_array_call=True
+                            files_mes=[]
 
-            elif (aux_system != informacion[2]) & (check_mes_hasta == True):
+                            
 
-                check_mes_hasta = False
-                aux_system = informacion[2]
-                check_mes_desde = False
-                anio_desde = int(mes_desde_input.get())
 
-            elif (aux_airport == informacion[1]) & (check_mes_hasta == True):
+                    if (periodo==False)& (aux_mes_anterior <= anio_hasta)&(check_array_call==False):
+                            
+                            #anio_desde += 1
+                            aux_mes_anterior += 1               
+                            anio_hasta += 1
+                            anio_desde,aux_mes_anterior = self.completa_mes_faltante(aux_mes_anterior,anio_hasta,aux_mes_anterior) 
+                            anio_desde = int(mes_desde_input.get())
+                            anio_hasta = int(mes_hasta_input.get())
+                            aux_mes_anterior= anio_desde
+                            if (aux_system=="VOR"):
+                                self.pendientes_vor_parametros_II(informacion[4],informacion[5])
+                            aux_airport = informacion[1]
+                            aux_system = informacion[2]
 
-                check_mes_hasta = False
-                check_mes_desde = False
-                periodo = False
-                anio_desde = int(mes_desde_input.get())
-
-            if (
-                (aux_airport == informacion[1])
-                & (check_mes_hasta == False)
-                & (aux_system == informacion[2])
-            ):
-
-                aux_mes_2 = aux_mes_anterior
-                file_cadena = informacion[3]
-
-                mes = file_cadena[5] + file_cadena[6]
-
-                mes_array = int(mes)
-
-                if len(files_mes_aux) != 0:
-                    mes_pend = files_mes_aux[5] + files_mes_aux[6]
-                    mes_array_pend = int(mes_pend)
-                    # agrego el 12-01
-
-                    if mes_array_pend <= anio_hasta:  # agrego el 12-01
-
-                        if (special_var == True) & (mes_array_pend > aux_mes_anterior):
-                            while aux_mes_anterior < mes_array_pend: #agrego el 23-1
-                                self.check_array()
-                                aux_mes_anterior += 1
-                                anio_desde = aux_mes_anterior  # agrego el 10/01
-                                special_var = False
-
-                        if mes_array_pend != mes_array:
-                            files_mes = []  # comento el 27-12
-                            files_mes.append(files_mes_aux)
-                            aux_mes_anterior_2 = aux_mes_anterior
-                            aux_mes_anterior = mes_array_pend
-                            aux_airport_2 = aux_airport
-                            aux_airport = (
-                                files_mes_aux[11]
-                                + files_mes_aux[12]
-                                + files_mes_aux[13]
-                            )
-                            aux_system_2 = aux_system
-                            aux_system = (
-                                files_mes_aux[15]
-                                + files_mes_aux[16]
-                                + files_mes_aux[17]
-                            )
-
-                            if aux_system == "DME":
-                                aux_system = (
-                                    files_mes_aux[19]
-                                    + files_mes_aux[20]
-                                    + files_mes_aux[21]
-                                )
-
-                            files_mes_aux = []
-                            anio_state = False  # agrego 29-12 10.30 hs
-                            self.check_array()
-                            aux_mes_anterior = aux_mes_anterior_2
-                            aux_airport = aux_airport_2
-                            aux_system = aux_system_2
-                            anio_desde += 1  ### 23-12
-                            anio_state = True
-
-                            aux_mes_anterior += 1
-                        files_mes_aux_2 = files_mes_aux  # agrego 28-12
-                        files_mes_aux = []  # se borra el 27-12
-
-                ############
-
-                if mes_array >= anio_desde:
-                    check_mes_desde = True
-                ########### modificación 5-10-22
-
-                if (files_mes_aux_2 != []) & (periodo == True):
-                    mes_array = anio_hasta
-                    periodo = False
-                    special_var = True
-                    anio_state = False
-                    aux_airport = (
-                        files_mes_aux_2[11] + files_mes_aux_2[12] + files_mes_aux_2[13]
-                    )
-                    aux_system = (
-                        files_mes_aux_2[15] + files_mes_aux_2[16] + files_mes_aux_2[17]
-                    )
-                while (anio_desde < mes_array) & (
-                    mes_array <= anio_hasta
-                ):  # agrego 12-01
-
-                    if (files_mes_aux_2 != []) & (
-                        special_var == False  # agrego el 03-01 a las 01hs
-                    ):  # agrego 29-12 14.3 hs
-                        mes_array = int(files_mes_aux_2[5] + files_mes_aux_2[6])
-
-                    aux_mes_anterior = anio_desde
-
-                    anio_desde += 1
-                    no_data_mes = True
-
-                    file_cadena = []  # agrego esto 12/12
-                    periodo = self.check_array()
-                    anio_state = True
-
-                    if periodo == True:
-                        periodo = False
-                        break
-                    aux_mes_anterior = anio_desde
-
-                if files_mes_aux_2 != []:
-                    mes_array = int(files_mes_aux_2[5] + files_mes_aux_2[6])
-                    if int(mes) > aux_mes_anterior:
-                        files_mes.append(files_mes_aux_2)
+                            
+                    else:
+                        check_array_call = False
+            match mes:
+                case mes if (mes > anio_desde) & (mes<anio_hasta):
+                    if (check_array_call== False) & (len(files_mes) !=0) :
                         anio_state = False
-                        files_mes_aux_2 = []
-                        periodo = self.check_array()
-                        anio_state = True
+                        self.check_array(aux_mes_anterior)
+                        anio_desde += 1
+                        aux_mes_anterior += 1
+                        files_mes.append (informacion[3])
+
+                    if (mes > anio_desde)& (mes<anio_hasta): 
+                        anio_desde,aux_mes_anterior = self.completa_mes_faltante(anio_desde,mes,aux_mes_anterior) 
+                        files_mes.append(informacion[3])
+                # caso en que el mes es menor que anio desde y cambio de sistema o aep     
+                case mes if mes<=anio_hasta:
+                    if ((system != aux_system)) & (check_array_call == False):
+                        anio_state = False
+                        self.check_array(aux_mes_anterior)
+                        #files_mes=[]
+                        #anio_desde += 1
+                        aux_mes_anterior += 1               
+                        anio_hasta += 1
+                        anio_desde,aux_mes_anterior = self.completa_mes_faltante(aux_mes_anterior,anio_hasta,aux_mes_anterior) 
+                        anio_desde = int(mes_desde_input.get())
+                        anio_hasta = int(mes_hasta_input.get())
+                        aux_mes_anterior= anio_desde
+                        aux_airport = informacion[1]
+                        aux_system = informacion[2]
+
+                    if mes==aux_mes_anterior:      
+                        files_mes.append(informacion[3])     
                         aux_mes_anterior = int(mes)
-                        files_mes = []
-                        anio_desde = aux_mes_anterior
-
-                if (
-                    (informacion[2] == aux_system)
-                    & ((aux_mes_anterior) == int(mes))
-                    & (periodo == False)
-                    & (aux_airport == informacion[1])
-                ):
-                    files_mes.append(informacion[3])
-                    if files_mes_aux_2 != []:  # agrego 03-01 12.30 hs
-                        mes_array = int(
-                            files_mes_aux_2[5] + files_mes_aux_2[6]
-                        )  # agrego 03-01 12.30 hs
-                        if int(mes) == aux_mes_anterior:  # agrego 03-01 12.30 hs
-                            files_mes.append(files_mes_aux_2)  # agrego 03-01 12.30 hs
-                            files_mes_aux_2 = []  # agrego 03-01 14.02 HS
-                    aux_mes_anterior = int(mes)
-                    anio_state = False
-                else:  # una vez cargado todo el mes, analiza la información
-
-                    if (
-                        (periodo == False)
-                        & (check_mes_hasta == False)
-                        & (check_mes_desde == True)
-                    ):  #####################
-                        anio_state = True  #################23-12 19 hs
-                        periodo = self.check_array()
-                        anio_desde += 1  # agregooooooo      29-12 18.30 hs
-                        check_mes_desde = False
+                        #anio_state = False
+                        
                     else:
-                        periodo = False
-                        anio_desde = int(mes_desde_input.get())
-
-            else:
-
-                if (aux_mes_anterior <= anio_hasta) & (check_mes_hasta == False):
-                    aux_system_2 = aux_system  # agrego esto 28-12 11 hs
-                    no_data_mes = True
-                    periodo = self.check_array()  #############################
-                    aux_mes_anterior += 1
-                    if periodo == False:
-                        anio_state = True  # agrego esto 28-12 11 hs
-                        periodo = self.check_array()
-                        files_mes_aux_2 = informacion[3]
-                        mes_pend = (
-                            files_mes_aux_2[5] + files_mes_aux_2[6]
-                        )  # agreego esto 28-12 16 hs
-
-                        if (aux_system_2 != informacion[2]) & (
-                            aux_mes_anterior > int(mes_pend)
-                        ):
-                            files_mes_aux = informacion[3]
-
-                            while (aux_mes_anterior < anio_hasta) & (
-                                check_mes_hasta == False
-                            ):
-                                aux_mes_anterior += 1
-                                aux_system = aux_system_2
-                                periodo = self.check_array()
-
-                        elif (
-                            (aux_system_2 == informacion[2])
-                            & (aux_mes_anterior > int(mes_pend))
-                            & (aux_airport != informacion[1])
-                        ):
-
-                            files_mes_aux = informacion[3]
-                            while (aux_mes_anterior < anio_hasta) & (
-                                check_mes_hasta == False
-                            ):
-                                aux_mes_anterior += 1
-                                aux_system = aux_system_2
-                                periodo = self.check_array()
-
-                        if check_mes_hasta == False:
-                            files_mes_aux = []
-                            aux_system_2 = ""  # agrego esto 28-12 11 hs
-
-                    else:
-                        periodo = False
-                        anio_desde = int(mes_desde_input.get())
-                        aux_mes_anterior = (
-                            anio_desde  # 27-12 19 hs #######################
-                        )
+                        #self.check_array(aux_mes_anterior)
+                        aux_mes_anterior += 1
+                        files_mes=[]
+                        files_mes.append(informacion[3])
+                        
+               
+            
         if informacion != "":
-
-            if (periodo == False) & (check_mes_hasta == False):
-                self.check_array()
-            while (
-                (aux_mes_anterior < anio_hasta)
-                & (periodo == False)
-                & (check_mes_hasta == False)
-            ):
-                anio_state = True
-                aux_mes_anterior += 1
-                periodo = self.check_array()
-
+            
             vista.w11.destroy()
             vista.w11 = Label(vista.master, text="OK", foreground="green")
             vista.w11.place(x=530, y=90)
@@ -461,7 +331,83 @@ class Registros:  # (Patr_Obs):
         else:
             showinfo("MENSAJE", "No hay información disponible")
 
-    def check_array(self):
+    def pendientes_vor_parametros_II(self,anio,fir):
+
+        import module_variable as mod_var
+        
+        """
+        if ((mod_var.contador_vor_par_2 >= 1) & (sistema_auxiliar == "VOR")) or (
+                (mod_var.contador_vor_par_2 == 0) & (sistema_auxiliar == "VOR")
+            ):
+        """
+        if ((mod_var.contador_vor_par_2 >= 1) or (mod_var.contador_vor_par_2 == 0)):
+                if anio_hasta - anio_desde == 11:
+
+                    resta = 4 - mod_var.contador_vor_par_2
+                    if resta > 0:
+                        self.registrar_pendientes(
+                            aux_airport,
+                            sistema_auxiliar,
+                            "1-" + str(anio_hasta),
+                            str(resta) + " FOLIO/S VOR PARAMETROS II (trimestrales)",
+                            anio,
+                            fir,
+                        )
+
+                elif anio_hasta - anio_desde > 9:
+
+                    resta = 3 - mod_var.contador_vor_par_2
+                    if resta > 0:
+                        self.registrar_pendientes(
+                            aux_airport,
+                            sistema_auxiliar,
+                            "1-" + str(anio_hasta),
+                            str(resta) + " FOLIO VOR PARAMETROS II (trimestrales)",
+                            anio,
+                            fir,
+                        )
+                elif anio_hasta - anio_desde > 6:
+
+                    resta = 2 - mod_var.contador_vor_par_2
+                    if resta > 0:
+                        self.registrar_pendientes(
+                            aux_airport,
+                            sistema_auxiliar,
+                            "1-" + str(anio_hasta),
+                            str(resta) + " FOLIO VOR PARAMETROS II (trimestrales)",
+                            anio,
+                            fir,
+                        )
+                elif anio_hasta - anio_desde > 3:
+                    resta = 1 - mod_var.contador_vor_par_2
+                    if resta > 0:
+                        self.registrar_pendientes(
+                            aux_airport,
+                            sistema_auxiliar,
+                            "1-" + str(anio_hasta),
+                            str(resta) + " FOLIO VOR PARAMETROS II (trimestrales)",
+                            anio,
+                            fir,
+                        )
+
+        mod_var.contador_vor_par_2 = 0
+
+    def completa_mes_faltante(self,mes_desde,mes_hasta,aux_mes_anterior):
+        global periodo
+        global anio_state
+
+        while mes_desde < mes_hasta:
+            anio_state = True
+            aux_mes_anterior = mes_desde
+            periodo = self.check_array(aux_mes_anterior)
+            mes_desde += 1
+
+        anio_desde = mes_desde
+        aux_mes_anterior = mes_desde 
+        return anio_desde,aux_mes_anterior
+        
+
+    def check_array(self,aux_mes_anterior):
 
         """esta función compara los documentos existentes del aeropuerto, con los que exige el manual técnico y el procedimiento"""
 
@@ -471,7 +417,7 @@ class Registros:  # (Patr_Obs):
         global str_system
         global files_mes, files_mes_aux
         global aux_system
-        global aux_mes_anterior
+        #global aux_mes_anterior
         global aux_airport
         global sistema_auxiliar
         global aux_system
@@ -498,18 +444,6 @@ class Registros:  # (Patr_Obs):
         command_array = []
 
         array_system = ""
-
-        if (len(files_mes_aux) != 0) & (anio_state == False):
-            for pend_files in files_mes_aux:
-                files_mes.append(pend_files)
-
-            files_mes_aux = []
-
-        if (len(files_mes_aux_2) != 0) & (anio_state == False):
-
-            files_mes.append(files_mes_aux_2)
-
-            files_mes_aux_2 = []
 
         b = len(files_mes)
 
@@ -633,69 +567,13 @@ class Registros:  # (Patr_Obs):
 
         except:
             print(aux_system + " no esta en la lista")
-
+        
         if aux_mes_anterior == anio_hasta:
 
             anio_desde = int(mes_desde_input.get())
-
-            if ((mod_var.contador_vor_par_2 >= 1) & (sistema_auxiliar == "VOR")) or (
-                (mod_var.contador_vor_par_2 == 0) & (sistema_auxiliar == "VOR")
-            ):
-
-                if anio_hasta - anio_desde == 11:
-
-                    resta = 4 - mod_var.contador_vor_par_2
-                    if resta > 0:
-                        self.registrar_pendientes(
-                            aux_airport,
-                            sistema_auxiliar,
-                            "1-" + str(anio_hasta),
-                            str(resta) + " FOLIO/S VOR PARAMETROS II (trimestrales)",
-                            anio,
-                            fir,
-                        )
-
-                elif anio_hasta - anio_desde > 9:
-
-                    resta = 3 - mod_var.contador_vor_par_2
-                    if resta > 0:
-                        self.registrar_pendientes(
-                            aux_airport,
-                            sistema_auxiliar,
-                            "1-" + str(anio_hasta),
-                            str(resta) + " FOLIO VOR PARAMETROS II (trimestrales)",
-                            anio,
-                            fir,
-                        )
-                elif anio_hasta - anio_desde > 6:
-
-                    resta = 2 - mod_var.contador_vor_par_2
-                    if resta > 0:
-                        self.registrar_pendientes(
-                            aux_airport,
-                            sistema_auxiliar,
-                            "1-" + str(anio_hasta),
-                            str(resta) + " FOLIO VOR PARAMETROS II (trimestrales)",
-                            anio,
-                            fir,
-                        )
-                elif anio_hasta - anio_desde > 3:
-                    resta = 1 - mod_var.contador_vor_par_2
-                    if resta > 0:
-                        self.registrar_pendientes(
-                            aux_airport,
-                            sistema_auxiliar,
-                            "1-" + str(anio_hasta),
-                            str(resta) + " FOLIO VOR PARAMETROS II (trimestrales)",
-                            anio,
-                            fir,
-                        )
-
-            mod_var.contador_vor_par_2 = 0
-
             files_mes_aux_2 = []
             periodo = True
-            aux_airport = informacion[1]
+            #aux_airport = informacion[1]
 
             aux_mes_anterior = anio_desde
             check_mes_hasta = True
@@ -704,7 +582,7 @@ class Registros:  # (Patr_Obs):
             files_mes_aux = informacion[3]
 
             mes_state = files_mes_aux[5] + files_mes_aux[6]
-
+            files_mes = []
             if int(mes_state) > 1:
                 anio_state = True
                 files_mes_aux_2 = informacion[3]
@@ -757,9 +635,12 @@ class Registros:  # (Patr_Obs):
             if informacion[2] != aux_system:
                 anio_desde = int(mes_desde_input.get())
 
-            files_mes.append(informacion[3])
+            #files_mes.append(informacion[3])
+            
+            #files_mes_aux.append(informacion[3])
+            
             sistema_auxiliar = aux_system
-            aux_system = informacion[2]
+            #aux_system = informacion[2]
 
         no_data_mes = False
 
@@ -892,7 +773,9 @@ def exportar(file_export):
                     nombre_tabla_completa_pdf = nombre_tabla_completa_pdf.upper()
                     pdf.output(nombre_tabla_completa_pdf)
                 else:
-                    pdf.output(str(fecha_actual) + " " + table_name.upper() + ".pdf")
+                    anio_desde = int(vista.mes_desde_input.get())
+                    anio_hasta = int(vista.mes_hasta_input.get())
+                    pdf.output(str(fecha_actual) + " " + table_name.upper() + " " + " periodo " + " " + str(anio_desde) + "-" + str(anio_hasta) + ".pdf")
 
                 vista.w13 = Label(vista.master, text="OK", foreground="green")
                 vista.w13.place(x=530, y=120)

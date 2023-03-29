@@ -4,7 +4,9 @@ from tkinter.messagebox import *
 
 # import sys
 # from typing import Container
+import PIL
 from PIL import Image, ImageTk
+#import Image,ImageTk
 from module_base_de_datos import connection_db
 import module_variable as mod_var
 import controller
@@ -59,7 +61,7 @@ def autor():
     win = Toplevel()
     win.title("Autor")
     win.geometry("300x100")
-    label_autor = Label(win, text="ING. TERRENI ADRIAN HORACIO\n\nv1.0 - AÑO: 2022")
+    label_autor = Label(win, text="ING. TERRENI ADRIAN HORACIO\n\nv2.0 - AÑO: 2022")
     label_autor.place(x=60, y=20)
 
 

@@ -16,7 +16,7 @@ def control_buscardocumentacion(ruta="."):
     import module_variable as mod_var
     import re
 
-    from alive_progress import alive_bar
+    #from alive_progress import alive_bar
     from time import sleep
 
     mod_var.contador_vor_par_2 = 0
@@ -187,7 +187,7 @@ def control_analizar_por_sitio():
 
     import modulo as mod
     from vista import combo_fir, mes_desde_input, mes_hasta_input
-    from alive_progress import alive_bar
+    #from alive_progress import alive_bar
     import module_variable as mod_var
     import re
 
