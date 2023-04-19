@@ -15,8 +15,6 @@ def control_buscardocumentacion(ruta="."):
     import modulo as mod
     import module_variable as mod_var
     import re
-
-    #from alive_progress import alive_bar
     from time import sleep
 
     mod_var.contador_vor_par_2 = 0
@@ -149,7 +147,7 @@ def control_exportar(doc_airport):
 
 
 def control_reset():
-
+    import module_variable as mod_var
     """esta funcion se emplea para eliminar las tablas analizadas"""
 
     from module_base_de_datos import eliminar_tabla_fir
@@ -175,6 +173,7 @@ def control_reset():
 
     a = eliminar_tabla_fir()
     if a == True:
+        mod_var.analizar_doc = False
         showinfo(
             "Mensaje Reset",
             "Base de datos reseteada",
@@ -187,7 +186,6 @@ def control_analizar_por_sitio():
 
     import modulo as mod
     from vista import combo_fir, mes_desde_input, mes_hasta_input
-    #from alive_progress import alive_bar
     import module_variable as mod_var
     import re
 
@@ -248,3 +246,5 @@ def aplicar_descargar():
         control_exportar(combo_seleccionado)
 
     vista.win_descargar.destroy()
+
+

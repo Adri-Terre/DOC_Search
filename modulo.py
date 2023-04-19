@@ -751,7 +751,8 @@ def exportar(file_export):
                 pdf.add_page()
 
                 pdf.set_font("Helvetica", "BU")
-                pdf.image("logo.png", 145, -4, 52)
+                #pdf.image("logo2.png", 145, -4, 52)
+                pdf.image("logo2.png",145,10,52)
 
                 if table_name == "doc_airport":
                     archivo = open(nombre_tabla_completa, "r")
@@ -784,7 +785,8 @@ def exportar(file_export):
                     table_name = "Registros completos"
                 table_name = table_name.upper()
                 showinfo("Message", table_name + " -> Archivos exportados en CSV y PDF")
-            except IOError:
+            except IOError as e:
+                print (e)
                 showinfo("Message Error", "Archivo no creado")
         else:
             showinfo("Message", "No hay registros en la base de datos")
