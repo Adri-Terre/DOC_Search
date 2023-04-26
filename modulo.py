@@ -241,8 +241,15 @@ class Registros:  # (Patr_Obs):
                             if (files_mes!=[])& (check_array_call==False):
                                 anio_state = False
                                 self.check_array(aux_mes_anterior)
-                            anio_desde = int(mes_desde_input.get())
+                            
+                            anio_desde += 1
+                            aux_mes_anterior += 1
+                            anio_hasta +=1 #agrego
+                            if (aux_mes_anterior <= anio_hasta): #agrego
+                                anio_desde,aux_mes_anterior = self.completa_mes_faltante(aux_mes_anterior,anio_hasta,aux_mes_anterior)#agrego
                             periodo=False
+                            anio_desde = int(mes_desde_input.get())#cambio
+                            anio_hasta = int(mes_hasta_input.get()) # agrego
                             aux_mes_anterior = anio_desde
                             if (aux_system=="VOR"):
                                 self.pendientes_vor_parametros_II(informacion[4],informacion[5])
@@ -273,7 +280,7 @@ class Registros:  # (Patr_Obs):
                     else:
                         check_array_call = False
             match mes:
-                case mes if (mes > anio_desde) & (mes<anio_hasta):
+                case mes if (mes > anio_desde) & (mes<=anio_hasta):#agrego el igual
                     if (check_array_call== False) & (len(files_mes) !=0) :
                         anio_state = False
                         self.check_array(aux_mes_anterior)
@@ -281,7 +288,7 @@ class Registros:  # (Patr_Obs):
                         aux_mes_anterior += 1
                         files_mes.append (informacion[3])
 
-                    if (mes > anio_desde)& (mes<anio_hasta): 
+                    if (mes > anio_desde)& (mes<=anio_hasta): 
                         anio_desde,aux_mes_anterior = self.completa_mes_faltante(anio_desde,mes,aux_mes_anterior) 
                         files_mes.append(informacion[3])
                 # caso en que el mes es menor que anio desde y cambio de sistema o aep     
@@ -293,12 +300,16 @@ class Registros:  # (Patr_Obs):
                         #anio_desde += 1
                         aux_mes_anterior += 1               
                         anio_hasta += 1
+                        
                         anio_desde,aux_mes_anterior = self.completa_mes_faltante(aux_mes_anterior,anio_hasta,aux_mes_anterior) 
                         anio_desde = int(mes_desde_input.get())
                         anio_hasta = int(mes_hasta_input.get())
                         aux_mes_anterior= anio_desde
                         aux_airport = informacion[1]
                         aux_system = informacion[2]
+                        periodo=True #agrego 19-4
+                        if (mes>aux_mes_anterior):
+                            anio_desde,aux_mes_anterior = self.completa_mes_faltante(aux_mes_anterior,mes,aux_mes_anterior) 
 
                     if mes==aux_mes_anterior:      
                         files_mes.append(informacion[3])     
@@ -315,6 +326,9 @@ class Registros:  # (Patr_Obs):
             
         if informacion != "":
             
+            if files_mes!="":
+                anio_state = False
+                self.check_array(aux_mes_anterior)
             vista.w11.destroy()
             vista.w11 = Label(vista.master, text="OK", foreground="green")
             vista.w11.place(x=530, y=90)

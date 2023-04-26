@@ -1,0 +1,1 @@
+pyinstaller --onefile controller.py --noconsole

@@ -221,11 +221,13 @@ def control_analizar_por_sitio():
                     "Complete todos los campos",
                 )
         else:
+
+            mod_var.analizar_doc = False
             showinfo(
                 "AÑO INGRESADO",
                 "Ingrese año del periodo a analizar y seleccione la documentación",
             )
-
+            
     else:
         showinfo("Mensaje Analizar", "La documentación ya ha sido analizada")
 
